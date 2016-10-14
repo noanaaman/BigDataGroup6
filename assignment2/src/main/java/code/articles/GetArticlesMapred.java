@@ -43,6 +43,10 @@ public class GetArticlesMapred {
 		public void map(LongWritable offset, WikipediaPage inputPage, Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement getting article mapper here
+			// inputPage is a cloud9 wikipedia page
+			String content = inputPage.getContent(); // string of title + text of page
+			// TODO: implement cleaning
+			
 		}
 	}
 
