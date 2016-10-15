@@ -1,5 +1,7 @@
 package code.articles;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,14 +30,29 @@ public class GetArticlesMapred {
 	 *
 	 */
 	//@formatter:on
-	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, Text> {
+	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, LongWritable, WikipediaPage> {
 		public static Set<String> peopleArticlesTitles = new HashSet<String>();
 
 		@Override
-		protected void setup(Mapper<LongWritable, WikipediaPage, Text, Text>.Context context)
+		protected void setup(Mapper<LongWritable, WikipediaPage, LongWritable, WikipediaPage>.Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement people articles load from
 			// DistributedCache here
+			try {	
+				BufferedReader br = new BufferedReader(new FileReader("people.txt"));
+				String name = br.readLine();
+				while (name != null)
+				{
+					peopleArticlesTitles.add(name);
+					name = br.readLine();
+					
+				}
+				
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			super.setup(context);
 		}
 
@@ -44,8 +61,12 @@ public class GetArticlesMapred {
 				throws IOException, InterruptedException {
 			// TODO: You should implement getting article mapper here
 			// inputPage is a cloud9 wikipedia page
-			String content = inputPage.getContent(); // string of title + text of page
-			// TODO: implement cleaning
+			String title = inputPage.getTitle();
+			if (peopleArticlesTitles.contains(title)){
+				context.write(offset,inputPage);
+			}
+			
+			
 			
 		}
 	}

@@ -1,6 +1,7 @@
 package code.lemma;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class Tokenizer {
 
@@ -9,7 +10,9 @@ public class Tokenizer {
 	}
 
 	public List<String> tokenize(String sentence) {
-		// TODO implement your tokenizing code here
+		StringTokenizer st = new StringTokenizer(sentence, " \t\n\r\f,.:;?![]()'");
 		return null;
 	}
+	
+	
 }
