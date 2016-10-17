@@ -1,6 +1,10 @@
 package code.inverted;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -22,6 +26,11 @@ import util.StringIntegerList.StringInteger;
  * the code taking the lemma index filename as input, and output being the
  * inverted index.
  */
+/* IN Dogg_Catt <woof, 3> <meow, 1>
+* 	  Catt_Meow <woof, 1>
+* OUT woof <Dogg_Woof, 3> <Catt_Meow, 1>
+*/
+
 public class InvertedIndexMapred {
 	public static class InvertedIndexMapper extends Mapper<Text, Text, Text, StringInteger> {
 
@@ -29,6 +38,21 @@ public class InvertedIndexMapred {
 		public void map(Text articleId, Text indices, Context context) throws IOException,
 				InterruptedException {
 			// TODO: You should implement inverted index mapper here
+
+			Pattern p = Pattern.compile("<(.*?)>");
+			Matcher m = p.matcher(indices.toString());
+			List<String> allMatches = new ArrayList<String>();
+			 while (m.find()) {
+			   allMatches.add(m.group(0));
+			 }
+			 for (String out:allMatches){
+				 out = out.replace("<", " ");
+				 out = out.replace(">", " ");
+				 out = out.replace(",", " ");
+				 String[] pieces = out.split("\\s+");
+				 context.write(new Text(pieces[1]),
+						 new StringInteger(articleId.toString(), Integer.parseInt(pieces[2])));
+			 }
 		}
 	}
 
@@ -39,6 +63,11 @@ public class InvertedIndexMapred {
 		public void reduce(Text lemma, Iterable<StringInteger> articlesAndFreqs, Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement inverted index reducer here
+			List<StringInteger> copy = new ArrayList<StringInteger>();
+			for (StringInteger si:articlesAndFreqs){
+			    copy.add(si);
+			}
+			context.write(lemma, new StringIntegerList(copy));
 		}
 	}
 
