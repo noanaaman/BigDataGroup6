@@ -17,8 +17,7 @@ public class LemmaIndexMapred {
 	public static class LemmaIndexMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
 
 		@Override
-		public void map(LongWritable offset, WikipediaPage page, Context context) throws IOException,
-				InterruptedException {
+		public void map(LongWritable offset, WikipediaPage page, Context context) throws IOException, InterruptedException {
 			// TODO: implement Lemma Index mapper here
 		}
 	}
