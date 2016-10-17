@@ -25,6 +25,8 @@ public class LemmaIndexMapred {
 			//    -- page.getContent() --> String of the text content of the page
 			// 2. tokenize it using the Tokenizer class
 			//    -- Tokenizer.tokenize(string) --> list of strings of tokens
+			// 4. drop the stopwords and lemmatize
+			// 5. output: Text Title, StringIntegerList lemmas_and_counts
 		}
 	}
 }
