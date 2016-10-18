@@ -14,5 +14,9 @@ public class Tokenizer {
 		return null;
 	}
 	
+	public List<String> lemmatize(String text) {
+		return null;
+	}
+	
 	
 }

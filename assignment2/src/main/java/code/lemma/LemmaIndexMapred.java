@@ -35,9 +35,9 @@ public class LemmaIndexMapred {
 			// 4. lemmatize
 			// 5. output: Text Title, StringIntegerList lemmas_and_counts
 			//    COMPLETE
-			
-			List<String> lemmas = Tokenizer.lemmatize(page);
-			Text title = page.getTitle();
+			Tokenizer tokenizer = new Tokenizer();
+			List<String> lemmas = tokenizer.lemmatize(page.getContent());
+			Text title = new Text(page.getTitle());
 			Map<String, Integer> frequencies = new HashMap<String,Integer>();
 			// loop through all lemmas for this page
 			for (String lemma : lemmas) {
