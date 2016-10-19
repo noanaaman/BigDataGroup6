@@ -79,7 +79,7 @@ public class InvertedIndexMapred {
 			System.exit(2);
 		}
 		
-		Job job = new Job(conf,"invert index");
+		Job job = Job.getInstance(conf);
 		job.setJarByClass(InvertedIndexMapred.class);
 		job.setMapperClass(InvertedIndexMapper.class);
 		job.setCombinerClass(InvertedIndexReducer.class);

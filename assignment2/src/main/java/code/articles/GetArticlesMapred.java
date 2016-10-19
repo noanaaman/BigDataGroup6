@@ -85,7 +85,7 @@ public class GetArticlesMapred {
 			System.exit(2);
 		}
 		
-		Job job = new Job(conf,"filter and reduce articles");
+		Job job = Job.getInstance(conf);
 		job.setJarByClass(GetArticlesMapred.class);
 		job.setMapperClass(GetArticlesMapper.class);
 		
