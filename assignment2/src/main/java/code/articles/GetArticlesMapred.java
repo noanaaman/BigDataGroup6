@@ -36,11 +36,11 @@ public class GetArticlesMapred {
 	 *
 	 */
 	//@formatter:on
-	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, LongWritable, WikipediaPage> {
+	public static class GetArticlesMapper extends Mapper<LongWritable, WikipediaPage, Text, Text> {
 		public static Set<String> peopleArticlesTitles = new HashSet<String>();
 
 		@Override
-		protected void setup(Mapper<LongWritable, WikipediaPage, LongWritable, WikipediaPage>.Context context)
+		protected void setup(Mapper<LongWritable, WikipediaPage, Text, Text>.Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement people articles load from
 			// DistributedCache here
@@ -69,7 +69,9 @@ public class GetArticlesMapred {
 			// inputPage is a cloud9 wikipedia page
 			String title = inputPage.getTitle();
 			if (peopleArticlesTitles.contains(title)){
-				context.write(offset,inputPage);
+				Text textOffset = new Text(offset.toString());
+				Text xmlPage = new Text(inputPage.getRawXML());
+				context.write(textOffset,xmlPage);
 			}
 			
 			
