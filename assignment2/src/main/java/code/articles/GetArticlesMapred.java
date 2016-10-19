@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import util.WikipediaPageInputFormat;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -91,8 +93,10 @@ public class GetArticlesMapred {
 		job.setJarByClass(GetArticlesMapred.class);
 		job.setMapperClass(GetArticlesMapper.class);
 		
-		job.setOutputKeyClass(LongWritable.class);
-		job.setOutputValueClass(WikipediaPage.class);
+		job.setInputFormatClass(WikipediaPageInputFormat.class);
+		
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
 		
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
