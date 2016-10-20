@@ -52,7 +52,7 @@ public class GetArticlesMapred {
 				ClassLoader cl = GetArticlesMapred.class.getClassLoader();
 				String fileUrl = cl.getResource(PEOPLE_FILE).getFile();
 				
-				// Get jar path;
+				// Get jar path
 				String jarUrl = fileUrl.substring(5, fileUrl.length() - PEOPLE_FILE.length() - 2);
 				JarFile jf = new JarFile(new File(jarUrl));
 				// Scan the people.txt file inside jar

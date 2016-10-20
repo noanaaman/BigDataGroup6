@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -16,8 +17,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import code.articles.GetArticlesMapred;
-import code.articles.GetArticlesMapred.GetArticlesMapper;
 import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
@@ -32,10 +31,10 @@ import util.StringIntegerList.StringInteger;
 */
 
 public class InvertedIndexMapred {
-	public static class InvertedIndexMapper extends Mapper<Text, Text, Text, StringInteger> {
+	public static class InvertedIndexMapper extends Mapper<LongWritable, Text, Text, StringInteger> {
 
 		@Override
-		public void map(Text articleId, Text indices, Context context) throws IOException,
+		public void map(LongWritable articleId, Text indices, Context context) throws IOException,
 				InterruptedException {
 			// TODO: You should implement inverted index mapper here
 
@@ -50,8 +49,9 @@ public class InvertedIndexMapred {
 				 out = out.replace(">", " ");
 				 out = out.replace(",", " ");
 				 String[] pieces = out.split("\\s+");
-				 context.write(new Text(pieces[1]),
-						 new StringInteger(articleId.toString(), Integer.parseInt(pieces[2])));
+				 
+				 StringInteger si = new StringInteger(articleId.toString(), Integer.parseInt(pieces[2]));
+				 context.write(new Text(pieces[1]), si);
 			 }
 		}
 	}
@@ -81,12 +81,15 @@ public class InvertedIndexMapred {
 		
 		Job job = Job.getInstance(conf);
 		job.setJarByClass(InvertedIndexMapred.class);
+		
 		job.setMapperClass(InvertedIndexMapper.class);
-		job.setCombinerClass(InvertedIndexReducer.class);
 		job.setReducerClass(InvertedIndexReducer.class);
 		
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(StringInteger.class);
+		
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(StringInteger.class);
+		job.setOutputValueClass(StringIntegerList.class);
 		
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
