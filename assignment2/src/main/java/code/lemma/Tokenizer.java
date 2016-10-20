@@ -25,7 +25,6 @@ public class Tokenizer {
 			}
 			
 		}
-		// TODO Annie
 		return tokens;
 	}
 	
