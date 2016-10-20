@@ -4,42 +4,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.commons.collections.functors.ForClosure;
+import org.apache.commons.lang.StringUtils;
 
 public class Tokenizer {
+	
+	Stemmer stemmer = new Stemmer();
 
 	public Tokenizer() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public List<String> tokenize(String sentence) {
-		StringTokenizer st = new StringTokenizer(sentence, " \t\n\r\f,.:;?![]()'"); //Annie- use this class to do most of the work
-		
-		// TODO Annie
-		return null;
-	}
-	
-	public List<String> sentenceTokenize(String text){
-		// TODO Annie
-		return null;
-	}
-	
-	
-	
-	public List<String> lemmatize(String text) {
-		
-		List<String> sentences = sentenceTokenize(text);
-		
+	public List<String> tokenize(String text) {
+		StringTokenizer st = new StringTokenizer(text, " \t\n\r\f,.:;?<>{}![]|-_()'"); 
 		List<String> tokens = new ArrayList<>();
 		
-		for (String sentence : sentences) {
-			List<String> sentenceTokens = sentenceTokenize(sentence);
-			tokens.addAll(sentenceTokens);
+		while (st.hasMoreTokens()) {
+			String token = st.nextToken();
+			if (StringUtils.isAlpha(token)) {
+				tokens.add(token.toLowerCase());
+			}
 			
 		}
-		
-		return null;
+		// TODO Annie
+		return tokens;
 	}
+	
+	
+	public List<String> getLemmas(String text) {
+		
+		List<String> tokens = tokenize(text);
+		List<String> lemmas = new ArrayList<>();
+				
+		for (String token : tokens) {
+			String lemma = stemmer.stem(token);
+			lemmas.add(lemma);
+		}
+		
+		return lemmas;
+	}
+	
+
+	
+	
 	
 	
 }
