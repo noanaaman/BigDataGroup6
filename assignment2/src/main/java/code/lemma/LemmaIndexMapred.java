@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
-import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
 /**
@@ -36,7 +35,7 @@ public class LemmaIndexMapred {
 			// 5. output: Text Title, StringIntegerList lemmas_and_counts
 			//    COMPLETE
 			Tokenizer tokenizer = new Tokenizer();
-			List<String> lemmas = tokenizer.lemmatize(page.getContent());
+			List<String> lemmas = tokenizer.getLemmas(page.getContent());
 			Text title = new Text(page.getTitle());
 			Map<String, Integer> frequencies = new HashMap<String,Integer>();
 			// loop through all lemmas for this page
