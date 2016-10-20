@@ -12,10 +12,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import code.inverted.InvertedIndexMapred;
-import code.inverted.InvertedIndexMapred.InvertedIndexMapper;
-import code.inverted.InvertedIndexMapred.InvertedIndexReducer;
 import util.StringIntegerList;
+import util.WikipediaPageInputFormat;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 
 import java.util.List;
@@ -81,6 +79,8 @@ public class LemmaIndexMapred {
 		Job job = Job.getInstance(conf);
 		job.setJarByClass(LemmaIndexMapred.class);
 		job.setMapperClass(LemmaIndexMapper.class);
+		
+		job.setInputFormatClass(WikipediaPageInputFormat.class);
 		
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(StringIntegerList.class);
