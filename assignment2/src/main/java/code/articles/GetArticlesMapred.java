@@ -1,10 +1,11 @@
 package code.articles;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.jar.JarFile;
 
 import util.WikipediaPageInputFormat;
 
@@ -47,16 +48,24 @@ public class GetArticlesMapred {
 			// TODO: You should implement people articles load from
 			// DistributedCache here
 			try {	
-				BufferedReader br = new BufferedReader(new FileReader("people.txt"));
-				String name = br.readLine();
-				while (name != null)
+				String PEOPLE_FILE = "people.txt";
+				ClassLoader cl = GetArticlesMapred.class.getClassLoader();
+				String fileUrl = cl.getResource(PEOPLE_FILE).getFile();
+				
+				// Get jar path;
+				String jarUrl = fileUrl.substring(5, fileUrl.length() - PEOPLE_FILE.length() - 2);
+				JarFile jf = new JarFile(new File(jarUrl));
+				// Scan the people.txt file inside jar
+				Scanner sc = new Scanner(jf.getInputStream(jf.getEntry(PEOPLE_FILE)));
+				
+				while (sc.hasNextLine())
 				{
-					peopleArticlesTitles.add(name);
-					name = br.readLine();
-					
+					String name = sc.nextLine();
+					peopleArticlesTitles.add(name);				
 				}
 				
-				br.close();
+				sc.close();
+				jf.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
