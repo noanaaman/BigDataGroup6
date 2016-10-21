@@ -44,14 +44,18 @@ public class InvertedIndexMapred {
 			 while (m.find()) {
 			   allMatches.add(m.group(0));
 			 }
-			 for (String out:allMatches){
+
+			 for (String out:allMatches){			 
+				 String indicesStr = indices.toString();
+				 String name = indicesStr.substring(0, indicesStr.indexOf("<"));
+				 name = name.trim();
+				 
 				 out = out.replace("<", " ");
 				 out = out.replace(">", " ");
 				 out = out.replace(",", " ");
 				 String[] pieces = out.split("\\s+");
 				 
-				 StringInteger si = new StringInteger(articleId.toString(), Integer.parseInt(pieces[2]));
-				 context.write(new Text(pieces[1]), si);
+				 context.write(new Text(pieces[1]), new StringInteger(name, Integer.parseInt(pieces[2])));
 			 }
 		}
 	}
@@ -63,9 +67,11 @@ public class InvertedIndexMapred {
 		public void reduce(Text lemma, Iterable<StringInteger> articlesAndFreqs, Context context)
 				throws IOException, InterruptedException {
 			// TODO: You should implement inverted index reducer here
+			System.out.println(lemma);
 			List<StringInteger> copy = new ArrayList<StringInteger>();
 			for (StringInteger si:articlesAndFreqs){
-			    copy.add(si);
+			    System.out.println(si);
+				copy.add(si);
 			}
 			context.write(lemma, new StringIntegerList(copy));
 		}
