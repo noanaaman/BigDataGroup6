@@ -38,25 +38,35 @@ public class InvertedIndexMapred {
 				InterruptedException {
 			// TODO: You should implement inverted index mapper here
 
-			Pattern p = Pattern.compile("<(.*?)>");
-			Matcher m = p.matcher(indices.toString());
-			List<String> allMatches = new ArrayList<String>();
-			 while (m.find()) {
-			   allMatches.add(m.group(0));
-			 }
-
-			 for (String out:allMatches){			 
-				 String indicesStr = indices.toString();
-				 String name = indicesStr.substring(0, indicesStr.indexOf("<"));
-				 name = name.trim();
-				 
-				 out = out.replace("<", " ");
-				 out = out.replace(">", " ");
-				 out = out.replace(",", " ");
-				 String[] pieces = out.split("\\s+");
-				 
-				 context.write(new Text(pieces[1]), new StringInteger(name, Integer.parseInt(pieces[2])));
-			 }
+//			Pattern p = Pattern.compile("<(.*?)>");
+//			Matcher m = p.matcher(indices.toString());
+//			List<String> allMatches = new ArrayList<String>();
+//			 while (m.find()) {
+//			   allMatches.add(m.group(0));
+//			 }
+//
+//			 for (String out:allMatches){			 
+//				 String indicesStr = indices.toString();
+//				 String name = indicesStr.substring(0, indicesStr.indexOf("<"));
+//				 name = name.trim();
+//				 
+//				 out = out.replace("<", " ");
+//				 out = out.replace(">", " ");
+//				 out = out.replace(",", " ");
+//				 String[] pieces = out.split("\\s+");
+//				 
+//				 context.write(new Text(pieces[1]), new StringInteger(name, Integer.parseInt(pieces[2])));
+//			 }
+			
+			String indicesStr = indices.toString();
+			String name = indicesStr.substring(0, indicesStr.indexOf("<"));
+			name = name.trim();
+			StringIntegerList indicesSIL = new StringIntegerList();
+			indicesSIL.readFromString(indicesStr);
+			
+			for (StringInteger si: indicesSIL.getIndices()){
+					context.write(new Text(si.getString()), new StringInteger(name, si.getValue()));
+			}
 		}
 	}
 
