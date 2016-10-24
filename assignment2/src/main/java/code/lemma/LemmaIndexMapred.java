@@ -1,5 +1,6 @@
 package code.lemma;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
@@ -12,13 +13,18 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
+import code.articles.GetArticlesMapred;
 import util.StringIntegerList;
 import util.WikipediaPageInputFormat;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ArrayList;
 import util.StringIntegerList.StringInteger;
 
@@ -29,6 +35,39 @@ import util.StringIntegerList.StringInteger;
 public class LemmaIndexMapred {
 	public static class LemmaIndexMapper extends Mapper<LongWritable, WikipediaPage, Text, StringIntegerList> {
 
+		public static Set<String> stopwords = new HashSet<String>();
+		
+		@Override
+		protected void setup(Mapper<LongWritable, WikipediaPage, Text, StringIntegerList>.Context context)
+				throws IOException, InterruptedException {
+			// TODO: You should implement people articles load from
+			// DistributedCache here
+			try {	
+				String STOPWORDS_FILE = "stopwords.txt";
+				ClassLoader cl = LemmaIndexMapred.class.getClassLoader();
+				String fileUrl = cl.getResource(STOPWORDS_FILE).getFile();
+				
+				// Get jar path
+				String jarUrl = fileUrl.substring(5, fileUrl.length() - STOPWORDS_FILE.length() - 2);
+				JarFile jf = new JarFile(new File(jarUrl));
+				// Scan the stopwords.txt file inside jar
+				Scanner sc = new Scanner(jf.getInputStream(jf.getEntry(STOPWORDS_FILE)));
+				
+				while (sc.hasNextLine())
+				{
+					String name = sc.nextLine();
+					stopwords.add(name);				
+				}
+				
+				sc.close();
+				jf.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			super.setup(context);
+		}
+		
 		@Override
 		public void map(LongWritable offset, WikipediaPage page, Context context) throws IOException, InterruptedException {
 			// TODO: implement Lemma Index mapper here
@@ -45,15 +84,17 @@ public class LemmaIndexMapred {
 			List<String> lemmas = tokenizer.getLemmas(page.getContent());
 			Text title = new Text(page.getTitle());
 			Map<String, Integer> frequencies = new HashMap<String,Integer>();
-			// loop through all lemmas for this page
+			// loop through all lemmas for this page, if it's not a stopword add it to the hashmap
 			for (String lemma : lemmas) {
-				Integer f = frequencies.get(lemma);
-				// check for null
-				if (f == null) {
-					f = new Integer(0);
+				if (!stopwords.contains(lemma)){
+					Integer f = frequencies.get(lemma);
+					// check for null
+					if (f == null) {
+						f = new Integer(0);
+					}
+					// update or create the frequency for this lemma
+					frequencies.put(lemma, f+1);
 				}
-				// update or create the frequency for this lemma
-				frequencies.put(lemma, f+1);
 			}
 			// convert the frequency map to a StringIntegerList ...
 			List<StringInteger> lemmacounts = new ArrayList<StringInteger>();
