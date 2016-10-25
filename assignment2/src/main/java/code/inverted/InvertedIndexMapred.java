@@ -59,13 +59,12 @@ public class InvertedIndexMapred {
 //			 }
 			
 			String indicesStr = indices.toString();
-			indicesStr.replaceFirst("\\t", "");
 			int index = indicesStr.indexOf("<");
 			if (index == -1){
 				return;
 			}
 			String name = indicesStr.substring(0, index);
-			name.trim();
+			name = name.trim();
 			StringIntegerList indicesSIL = new StringIntegerList();
 			indicesSIL.readFromString(indicesStr);
 			
@@ -90,9 +89,6 @@ public class InvertedIndexMapred {
 			}
 			context.write(lemma, new StringIntegerList(copy));
 			
-			//for (StringInteger si:articlesAndFreqs){
-			//	context.write(lemma, si);
-			//}
 		}
 	}
 
