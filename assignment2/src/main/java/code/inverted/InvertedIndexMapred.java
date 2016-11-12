@@ -59,13 +59,18 @@ public class InvertedIndexMapred {
 //			 }
 			
 			String indicesStr = indices.toString();
-			String name = indicesStr.substring(0, indicesStr.indexOf("<"));
+			int index = indicesStr.indexOf("<");
+			if (index == -1){
+				return;
+			}
+			String name = indicesStr.substring(0, index);
 			name = name.trim();
 			StringIntegerList indicesSIL = new StringIntegerList();
 			indicesSIL.readFromString(indicesStr);
 			
 			for (StringInteger si: indicesSIL.getIndices()){
 					context.write(new Text(si.getString()), new StringInteger(name, si.getValue()));
+					//context.write(new Text(indicesStr), new StringInteger("ok", 1));
 			}
 		}
 	}
@@ -76,14 +81,14 @@ public class InvertedIndexMapred {
 		@Override
 		public void reduce(Text lemma, Iterable<StringInteger> articlesAndFreqs, Context context)
 				throws IOException, InterruptedException {
-			// TODO: You should implement inverted index reducer here
-			System.out.println(lemma);
+			
 			List<StringInteger> copy = new ArrayList<StringInteger>();
 			for (StringInteger si:articlesAndFreqs){
-			    System.out.println(si);
-				copy.add(si);
+				StringInteger newSI = new StringInteger(si.getString(), si.getValue());
+				copy.add(newSI);
 			}
 			context.write(lemma, new StringIntegerList(copy));
+			
 		}
 	}
 
@@ -105,7 +110,8 @@ public class InvertedIndexMapred {
 		job.setMapOutputValueClass(StringInteger.class);
 		
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(StringIntegerList.class);
+		//job.setOutputValueClass(StringIntegerList.class);
+		job.setOutputValueClass(StringInteger.class);
 		
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
