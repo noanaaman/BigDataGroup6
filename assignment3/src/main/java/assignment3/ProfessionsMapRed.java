@@ -118,10 +118,10 @@ public class ProfessionsMapRed {
 		job.setMapperClass(GetVocabMapper.class);
 		
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(StringInteger.class);
+		job.setMapOutputValueClass(StringIntegerList.class);
 		
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(StringInteger.class);
+		job.setOutputValueClass(StringIntegerList.class);
 		
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
