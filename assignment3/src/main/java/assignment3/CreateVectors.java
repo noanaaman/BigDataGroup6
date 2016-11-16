@@ -26,8 +26,16 @@ public class CreateVectors {
 	
 	private static Integer wordCount = 1;
 	private static final Map<String, Integer> vocab = Maps.newHashMap();
+	private String indexPath;
 	
-
+	public CreateVectors(String indexPath)
+	{
+		this.indexPath = indexPath;
+	}
+	
+	public List<MahoutVector> vectorize() throws IOException {
+		return vectorize(this.indexPath);
+	}
 	
 	public List<MahoutVector> vectorize(String indexPath) throws IOException {
 		
