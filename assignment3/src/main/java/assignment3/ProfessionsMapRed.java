@@ -106,17 +106,24 @@ public class ProfessionsMapRed {
 		@Override
 		public void map(LongWritable articleId, Text indices, Context context) throws IOException, InterruptedException {
 			
+			// find the individual's name
 			String indicesStr = indices.toString();
 			int index = indicesStr.indexOf("<");
 			if (index == -1){
+				// bad input! stop this mapping process
 				return;
 			}
 			String name = indicesStr.substring(0, index);
 			name = name.trim();
+			
+			// look this individual up in the professions hashmap
 			String profession = professions.get(name);
+			
+			// read in pairs 
 			StringIntegerList indicesSIL = new StringIntegerList();
 			indicesSIL.readFromString(indicesStr);
 			
+			// write the profession and indices to output
 			context.write(new Text(profession), indicesSIL);
 		}
 	}

@@ -24,84 +24,111 @@ import util.StringIntegerList.StringInteger;
 
 public class CreateVectors {
 	
+	// initialize map of vocabulary and their indices
 	private static Integer wordCount = 1;
 	private static final Map<String, Integer> vocab = Maps.newHashMap();
+	// path to source file
 	private String indexPath;
 	
+	// constructor needed
 	public CreateVectors(String indexPath)
 	{
 		this.indexPath = indexPath;
 	}
 	
+	// vectorizer with no arguments
 	public List<MahoutVector> vectorize() throws IOException {
 		return vectorize(this.indexPath);
 	}
 	
+	// creates vectors for the given index file
 	public List<MahoutVector> vectorize(String indexPath) throws IOException {
 		
+		// initialize vectors and file reader
 		List<MahoutVector> vectors = Lists.newArrayList();
 		BufferedReader br = new BufferedReader(new FileReader(indexPath));
+		
+		// read until nothing remains in the buffer
 		try {
 			String line = br.readLine();
 			
+			// TODO
 			while (line != null) {
+				
+				// initialize a new sparse vector for this line with attributes:
+				// cardinality: estimate of initialized sparseness
+				// initial size: size of a double hashmap representing the vector
 				Vector vector = new RandomAccessSparseVector(line.length()-1, line.length()-1);
 				
+				// split the line on tabs
 				String[] profIndex = line.split("\t");
+				// store the profession as class label
 				String profession = profIndex[0];
 				
+				// initialize a list of <string, integer> pairs
 				StringIntegerList indicesSIL = new StringIntegerList();
+				// and store into it each instance's <lemma, count> list
 				indicesSIL.readFromString(profIndex[1]);
 				
 				for (StringInteger si: indicesSIL.getIndices()) {
+					// add each lemma to vocabulary map and draw its index; set
+					// its count for this instance at that position of the vector
 					vector.set(processString(si.getString()),(double)si.getValue());
 				}
 				
+				// create a Mahout-ready vector out of this instance's vector
 				MahoutVector mahoutVector = new MahoutVector();
 				mahoutVector.setClassifier(profession); 
 				mahoutVector.setVector(vector);
 				vectors.add(mahoutVector);
-				
 			}
+			// return list of all vectors in the associated file
 			return vectors;
 			
 		} finally {
+			// tidy up by closing the buffered reader
 			br.close();
 		}
-		
 	}
 	
 	
 	public void createSeqFile() throws IOException
 	{
+		// TODO
+		// set the path to the index file
+		String indexPath = "???";
+		
+		// set up the filesystem
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
-		Path seqFilePath = new Path("????");
-		
+		Path seqFilePath = new Path(indexPath);
+		// non-recursively remove any existing version of the sequence file first
 		fs.delete(seqFilePath,false);
 		
+		// set up the writer for the sequence file
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, seqFilePath, Text.class, VectorWritable.class);
-
-		String indexPath = "???";
 
 		try
 		{
-			
+			// create a list of vectors using the supplied path
 			List<MahoutVector> vectors = vectorize(indexPath);
 
-			
 			// Init the labels
 			
 			for (MahoutVector vector : vectors)
 			{
+				// write a copy of the current vector
 				VectorWritable vectorWritable = new VectorWritable();
 				vectorWritable.set(vector.getVector());
+				
+				// add the class label and vector to the sequence file
 				writer.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
 			}
 		}
 
 		finally
 		{
+			// tidy up by closing the sequence file
 			writer.close();
 		}
 	}
@@ -109,14 +136,17 @@ public class CreateVectors {
 	
 	protected int processString(String data)
 	{
-		
+		// pull the index of the given string
 		Integer wordIndex = vocab.get(data);
+		
+		// if unseen, add to vocabulary at next position
 		if (wordIndex == null)
 		{
 			wordIndex = wordCount++;
 			vocab.put(data, wordIndex);
 		}
 		
+		// return the linear position (==index) of the vocabulary item
 		return wordIndex;
 	}
 
