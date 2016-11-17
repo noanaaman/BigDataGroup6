@@ -3,7 +3,10 @@ package assignment3;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -29,12 +32,16 @@ public class CreateVectors {
 	private static final Map<String, Integer> vocab = Maps.newHashMap();
 	// path to source file
 	private String indexPath;
+	private HashSet<String> labels;
 	
 	// constructor needed
 	public CreateVectors(String indexPath)
 	{
 		this.indexPath = indexPath;
+		this.labels = new HashSet<String>();
 	}
+	
+	
 	
 	// vectorizer with no arguments
 	public List<MahoutVector> vectorize() throws IOException {
@@ -64,6 +71,8 @@ public class CreateVectors {
 				String[] profIndex = line.split("\t");
 				// store the profession as class label
 				String profession = profIndex[0];
+				profession = profession.toLowerCase();
+				labels.add(profession);
 				
 				// initialize a list of <string, integer> pairs
 				StringIntegerList indicesSIL = new StringIntegerList();
@@ -148,6 +157,15 @@ public class CreateVectors {
 		
 		// return the linear position (==index) of the vocabulary item
 		return wordIndex;
+	}
+	
+	public List<String> getLabelList() {
+		List<String> labelList = new ArrayList<String>(this.labels);
+		
+		labelList.sort(String.CASE_INSENSITIVE_ORDER);
+		
+		return labelList;
+		
 	}
 
 	

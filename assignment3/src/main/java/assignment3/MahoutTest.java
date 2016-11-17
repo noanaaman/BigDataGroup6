@@ -1,5 +1,6 @@
 package assignment3;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
@@ -42,6 +43,8 @@ public class MahoutTest {
 		CreateVectors create = new CreateVectors("pathtoindexfile"); 
 		List<MahoutVector> vectors = create.vectorize();
 		
+		List<String> professionsList = create.getLabelList();
+		
 	    int total = 0;
 	    int success = 0;
 	    
@@ -67,17 +70,17 @@ public class MahoutTest {
             int indexofTop3 = prediction.indexOf(top3);
             
             //get the top three predictions
-            // String prediction1 = professionsVector.get(indexofTop1);
-            // String prediction2 = professionsVector.get(indexofTop2);
-            // String prediction3 = professionsVector.get(indexofTop3);
+            String prediction1 = professionsList.get(indexofTop1);
+            String prediction2 = professionsList.get(indexofTop2);
+            String prediction3 = professionsList.get(indexofTop3);
             
-//	    	if (prediction1.equals(mahoutVector.getClassifier())
-//            || prediction2.equals(mahoutVector.getClassifier())
-//            || prediction3.equals(mahoutVector.getClassifier()))
-//	    	{ 
-//	    		success++;
-//	    	}
-//	    	total ++;
+	    	if (prediction1.equals(mahoutVector.getClassifier())
+            || prediction2.equals(mahoutVector.getClassifier())
+            || prediction3.equals(mahoutVector.getClassifier()))
+	    	{ 
+	    		success++;
+	    	}
+	    	total ++;
 	    }
 	    System.out.println(total + " : " + success + " : " + (total - success) + " " + ((double)success/total));
 	}
