@@ -119,12 +119,15 @@ public class ProfessionsMapRed {
 			// look this individual up in the professions hashmap
 			String profession = professions.get(name);
 			
-			// read in pairs 
-			StringIntegerList indicesSIL = new StringIntegerList();
-			indicesSIL.readFromString(indicesStr);
+			if (profession != null) {
+				// read in pairs 
+				StringIntegerList indicesSIL = new StringIntegerList();
+				indicesSIL.readFromString(indicesStr);
+				
+				// write the profession and indices to output
+				context.write(new Text(profession), indicesSIL);
+			}
 			
-			// write the profession and indices to output
-			context.write(new Text(profession), indicesSIL);
 		}
 	}
 
@@ -143,9 +146,9 @@ public class ProfessionsMapRed {
 		// set up mapper class
 		job.setMapperClass(GetVocabMapper.class);
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(StringInteger.class);
+		job.setMapOutputValueClass(StringIntegerList.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(StringInteger.class);
+		job.setOutputValueClass(StringIntegerList.class);
 		// reducer class isn't needed for this job
 		// set the input and output directories
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
