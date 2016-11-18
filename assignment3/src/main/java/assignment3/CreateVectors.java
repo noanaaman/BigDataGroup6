@@ -66,10 +66,6 @@ public class CreateVectors {
 			
 			while (line != null) {
 				
-				// initialize a new sparse vector for this line with attributes:
-				// cardinality: estimate of initialized sparseness
-				// initial size: size of a double hashmap representing the vector
-				Vector vector = new RandomAccessSparseVector(vocab.size()+line.length(), vocab.size()+line.length());
 				
 				// split the line on tabs
 				String[] profIndex = line.split("\t");
@@ -82,6 +78,13 @@ public class CreateVectors {
 				StringIntegerList indicesSIL = new StringIntegerList();
 				// and store into it each instance's <lemma, count> list
 				indicesSIL.readFromString(profIndex[1]);
+				
+
+				// initialize a new sparse vector for this line with attributes:
+				// cardinality: estimate of initialized sparseness
+				// initial size: size of a double hashmap representing the vector
+				int listSize = indicesSIL.getIndices().size();
+				Vector vector = new RandomAccessSparseVector(vocab.size()+listSize, listSize);
 				
 				for (StringInteger si: indicesSIL.getIndices()) {
 					// add each lemma to vocabulary map and draw its index; set
