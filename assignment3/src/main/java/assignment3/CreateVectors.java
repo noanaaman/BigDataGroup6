@@ -1,10 +1,7 @@
 package assignment3;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -83,7 +80,6 @@ public class CreateVectors {
 				StringIntegerList indicesSIL = new StringIntegerList();
 				// and store into it each instance's <lemma, count> list
 				indicesSIL.readFromString(profIndex[1]);
-				
 				for (StringInteger si: indicesSIL.getIndices()) {
 					// add each lemma to vocabulary map and draw its index; set
 					// its count for this instance at that position of the vector
