@@ -59,7 +59,6 @@ public class CreateVectors {
 		try {
 			String line = br.readLine();
 			
-			// TODO
 			while (line != null) {
 				
 				// initialize a new sparse vector for this line with attributes:
@@ -103,7 +102,6 @@ public class CreateVectors {
 	
 	public void createSeqFile() throws IOException
 	{
-		// TODO
 		// set the path to the index file
 		String indexPath = "???";
 		

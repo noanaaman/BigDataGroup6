@@ -95,7 +95,6 @@ public class ProfessionsMapRed {
 				jf.close();
 				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				// We'd like to know what happened here.
 				e.printStackTrace();
 			}

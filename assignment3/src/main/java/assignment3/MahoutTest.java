@@ -1,5 +1,6 @@
 package assignment3;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
@@ -19,13 +20,12 @@ public class MahoutTest {
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
 			
-		// TODO path to sequence file
+		// path to sequence file
 		Path seqFilePath = new Path("???");
 			
 		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
-			
 		String sequenceFile = "???";
 		String outputDirectory = "???";
 		String tempDirectory = "???";
@@ -45,10 +45,10 @@ public class MahoutTest {
 		// Use the model to create a classifier for new data
 		StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(naiveBayesModel);
 		
-		
+		// generate vectors 
 		CreateVectors create = new CreateVectors("pathtoindexfile"); 
 		List<MahoutVector> vectors = create.vectorize();
-		
+		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
 		
 	    int total = 0;
@@ -58,13 +58,15 @@ public class MahoutTest {
 	    {
 	    	Vector<Double> prediction = (Vector<Double>) classifier.classifyFull(mahoutVector.getVector());
 	    	
-	    	// Professions are sorted alphabetically ?? hopefully
+	    	// Professions are returned in alphanumeric sort;
+	    	// make a copy 
 	    	Vector<Double> predictionCopy = (Vector<Double>) prediction.clone();
 	    	Comparator<Double> c = new Comparator<Double>(){
                 public int compare(Double s1,Double s2){
                 	return s1.compareTo(s2);
               }};
-            predictionCopy.sort(c);
+            Collections.sort(predictionCopy, c);
+            
             //top 3 values from the prediction vector
             Double top1 = predictionCopy.get(0);
             Double top2 = predictionCopy.get(1);
@@ -80,6 +82,7 @@ public class MahoutTest {
             String prediction2 = professionsList.get(indexofTop2);
             String prediction3 = professionsList.get(indexofTop3);
             
+            // if one of the top three guesses is correct, consider it success
 	    	if (prediction1.equals(mahoutVector.getClassifier())
             || prediction2.equals(mahoutVector.getClassifier())
             || prediction3.equals(mahoutVector.getClassifier()))
