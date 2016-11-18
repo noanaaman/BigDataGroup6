@@ -105,7 +105,7 @@ public class CreateVectors {
 	{
 		// TODO
 		// set the path to the index file
-		String indexPath = "???";
+		String indexPath = "/user/hadoop06/output004";
 		
 		// set up the filesystem
 		Configuration conf = new Configuration();

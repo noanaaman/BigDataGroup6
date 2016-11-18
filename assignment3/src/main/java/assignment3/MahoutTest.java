@@ -19,14 +19,14 @@ public class MahoutTest {
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
 			
-		Path seqFilePath = new Path("???");
+		Path seqFilePath = new Path("/user/hadoop06/seqfilepath");
 			
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
 			
-		String sequenceFile = "???";
-		String outputDirectory = "???";
-		String tempDirectory = "???";
+		String sequenceFile = "seqfile";
+		String outputDirectory = "/user/hadoop06/output005";
+		String tempDirectory = "/user/hadoop06/temp";
 			
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
@@ -40,7 +40,7 @@ public class MahoutTest {
 	    
 		StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(naiveBayesModel);
 		
-		CreateVectors create = new CreateVectors("pathtoindexfile"); 
+		CreateVectors create = new CreateVectors("/user/hadoop06/output004"); 
 		List<MahoutVector> vectors = create.vectorize();
 		
 		List<String> professionsList = create.getLabelList();
