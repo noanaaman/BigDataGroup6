@@ -40,7 +40,6 @@ public class CreateVectors {
 	}
 	
 	
-	
 	// vectorizer with no arguments
 	public List<MahoutVector> vectorize() throws IOException {
 		return vectorize(this.indexPath);
@@ -67,7 +66,7 @@ public class CreateVectors {
 				// initialize a new sparse vector for this line with attributes:
 				// cardinality: estimate of initialized sparseness
 				// initial size: size of a double hashmap representing the vector
-				Vector vector = new RandomAccessSparseVector(line.length()-1, line.length()-1);
+				Vector vector = new RandomAccessSparseVector(vocab.size()+line.length(), vocab.size()+line.length());
 				
 				// split the line on tabs
 				String[] profIndex = line.split("\t");
