@@ -23,10 +23,6 @@ public class MahoutTest {
 		conf.set("mapred.job.queue.name", "hadoop06");
 		FileSystem fs = FileSystem.getLocal(conf);
 			
-		// path to sequence file
-		Path seqFilePath = new Path("/user/hadoop06/seqfilepath");
-		// make sure we have split into trainset and testset
-			
 		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
@@ -34,7 +30,9 @@ public class MahoutTest {
 		String sequenceFile = "/user/hadoop06/seqfilepath";
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
-		String indexPath = "/user/hadoop06/output004";
+		String indexPath = "/user/hadoop06/output004/part-r-00000";
+		
+		// make sure we have split into trainset and testset
 			
 		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);

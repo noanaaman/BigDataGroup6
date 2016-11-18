@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
@@ -53,7 +54,12 @@ public class CreateVectors {
 		
 		// initialize vectors and file reader
 		List<MahoutVector> vectors = Lists.newArrayList();
-		BufferedReader br = new BufferedReader(new FileReader(indexPath));
+		
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		FSDataInputStream br = fs.open(new Path(indexPath));
+		
+		//BufferedReader br = new BufferedReader(new FileReader(hdfsPath));
 		
 		// read until nothing remains in the buffer
 		try {
