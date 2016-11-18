@@ -159,11 +159,11 @@ public class CreateVectors {
 		return wordIndex;
 	}
 	
+	// return the list of labels for interpretation of Mahout output vector
 	public List<String> getLabelList() {
+		
 		List<String> labelList = new ArrayList<String>(this.labels);
-		
-		labelList.sort(String.CASE_INSENSITIVE_ORDER);
-		
+		Collections.sort(labelList, String.CASE_INSENSITIVE_ORDER);
 		return labelList;
 		
 	}
