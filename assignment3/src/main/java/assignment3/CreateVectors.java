@@ -89,6 +89,9 @@ public class CreateVectors {
 				mahoutVector.setClassifier(profession); 
 				mahoutVector.setVector(vector);
 				vectors.add(mahoutVector);
+				
+				// update current line; end of stream returns null
+				line = br.readLine();
 			}
 			// return list of all vectors in the associated file
 			return vectors;
