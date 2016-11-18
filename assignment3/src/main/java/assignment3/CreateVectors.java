@@ -59,7 +59,6 @@ public class CreateVectors {
 		try {
 			String line = br.readLine();
 			
-			// TODO
 			while (line != null) {
 				
 				// initialize a new sparse vector for this line with attributes:
@@ -103,7 +102,6 @@ public class CreateVectors {
 	
 	public void createSeqFile() throws IOException
 	{
-		// TODO
 		// set the path to the index file
 		String indexPath = "/user/hadoop06/output004";
 		
@@ -159,15 +157,11 @@ public class CreateVectors {
 		return wordIndex;
 	}
 	
+	// return the list of labels for interpretation of Mahout output vector
 	public List<String> getLabelList() {
+		
 		List<String> labelList = new ArrayList<String>(this.labels);
-		
-		labelList.sort(String.CASE_INSENSITIVE_ORDER);
-		
+		Collections.sort(labelList, String.CASE_INSENSITIVE_ORDER);
 		return labelList;
-		
 	}
-
-	
-	
 }

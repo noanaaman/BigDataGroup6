@@ -1,6 +1,6 @@
 package assignment3;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
@@ -11,16 +11,22 @@ import org.apache.hadoop.fs.Path;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
+//import org.apache.mahout.classifier.df.tools.Describe;
+
 
 public class MahoutTest {
-
-	public static void train() throws Throwable
+	
+	public static void trainNB() throws Throwable
 	{
+		// begin by setting up Mahout job background details
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
 			
 		Path seqFilePath = new Path("/user/hadoop06/seqfilepath");
+		// path to sequence file
+		// make sure we have split into trainset and testset
 			
+		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
 			
@@ -28,21 +34,25 @@ public class MahoutTest {
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
 			
+		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 			
-		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "-el", "--overwrite", "--tempDir", tempDirectory });
 		// Train the classifier
+		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "-el", "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 
+		// Report!
 		System.out.println("features: " + naiveBayesModel.numFeatures());
 		System.out.println("labels: " + naiveBayesModel.numLabels());
 	    
+		// Use the model to create a classifier for new data
 		StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(naiveBayesModel);
 		
 		CreateVectors create = new CreateVectors("/user/hadoop06/output004"); 
+		// generate vectors from testset
 		List<MahoutVector> vectors = create.vectorize();
-		
+		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
 		
 	    int total = 0;
@@ -52,13 +62,15 @@ public class MahoutTest {
 	    {
 	    	Vector<Double> prediction = (Vector<Double>) classifier.classifyFull(mahoutVector.getVector());
 	    	
-	    	// Professions are sorted alphabetically ?? hopefully
+	    	// Professions are returned in alphanumeric sort;
+	    	// make a copy to match up with this
 	    	Vector<Double> predictionCopy = (Vector<Double>) prediction.clone();
 	    	Comparator<Double> c = new Comparator<Double>(){
                 public int compare(Double s1,Double s2){
                 	return s1.compareTo(s2);
               }};
-            predictionCopy.sort(c);
+            Collections.sort(predictionCopy, c);
+            
             //top 3 values from the prediction vector
             Double top1 = predictionCopy.get(0);
             Double top2 = predictionCopy.get(1);
@@ -74,6 +86,7 @@ public class MahoutTest {
             String prediction2 = professionsList.get(indexofTop2);
             String prediction3 = professionsList.get(indexofTop3);
             
+            // if one of the top three guesses is correct, consider it success
 	    	if (prediction1.equals(mahoutVector.getClassifier())
             || prediction2.equals(mahoutVector.getClassifier())
             || prediction3.equals(mahoutVector.getClassifier()))
@@ -84,10 +97,16 @@ public class MahoutTest {
 	    }
 	    System.out.println(total + " : " + success + " : " + (total - success) + " " + ((double)success/total));
 	}
+	
+	
 
 	public static void main(String[] args) throws Throwable
 	{
-		train();
+		// runs Naive Bayes test
+		trainNB();
+		// run further classifiers
+		// trainRF();
+		// trainNN();
 	}
 }
 
