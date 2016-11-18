@@ -103,15 +103,16 @@ public class CreateVectors {
 	}
 	
 	
-	public void createSeqFile() throws IOException
+	public void createSeqFile(String seqPath) throws IOException
 	{
 		// set the path to the index file
-		String indexPath = "/user/hadoop06/output004";
+		String indexPath = this.indexPath;
 		
 		// set up the filesystem
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
-		Path seqFilePath = new Path(indexPath);
+		//Path seqFilePath = new Path(indexPath);
+		Path seqFilePath = new Path(seqPath);
 		// non-recursively remove any existing version of the sequence file first
 		fs.delete(seqFilePath,false);
 		

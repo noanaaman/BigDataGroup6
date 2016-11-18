@@ -23,24 +23,34 @@ public class MahoutTest {
 		conf.set("mapred.job.queue.name", "hadoop06");
 		FileSystem fs = FileSystem.getLocal(conf);
 			
-		Path seqFilePath = new Path("/user/hadoop06/seqfilepath");
 		// path to sequence file
+		Path seqFilePath = new Path("/user/hadoop06/seqfilepath");
 		// make sure we have split into trainset and testset
 			
 		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
 			
-		String sequenceFile = "seqfile";
+		String sequenceFile = "/user/hadoop06/seqfilepath";
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
+		String indexPath = "/user/hadoop06/output004";
 			
 		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
+		
+		CreateVectors create = new CreateVectors(indexPath); 
+		// generate vectors from testset
+		List<MahoutVector> vectors = create.vectorize();
+		// get labels associated with vectors
+		List<String> professionsList = create.getLabelList();
+		// create sequence file
+		create.createSeqFile(sequenceFile);
 			
 		// Train the classifier
-		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "-el", "--overwrite", "--tempDir", tempDirectory });
+		// removed "-el" before overwrite
+		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 
 		// Report!
@@ -49,12 +59,6 @@ public class MahoutTest {
 	    
 		// Use the model to create a classifier for new data
 		StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(naiveBayesModel);
-		
-		CreateVectors create = new CreateVectors("/user/hadoop06/output004"); 
-		// generate vectors from testset
-		List<MahoutVector> vectors = create.vectorize();
-		// get labels associated with vectors
-		List<String> professionsList = create.getLabelList();
 		
 	    int total = 0;
 	    int success = 0;
