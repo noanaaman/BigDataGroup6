@@ -20,6 +20,7 @@ public class MahoutTest {
 	{
 		// begin by setting up Mahout job background details
 		Configuration conf = new Configuration();
+		conf.set("mapred.job.queue.name", "hadoop06");
 		FileSystem fs = FileSystem.getLocal(conf);
 			
 		Path seqFilePath = new Path("/user/hadoop06/seqfilepath");
