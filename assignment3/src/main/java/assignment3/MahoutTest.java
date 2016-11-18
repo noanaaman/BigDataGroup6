@@ -12,14 +12,17 @@ import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
 
 public class MahoutTest {
-
+	
 	public static void train() throws Throwable
 	{
+		// begin by setting up Mahout job
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
 			
+		// TODO path to sequence file
 		Path seqFilePath = new Path("???");
 			
+		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
 			
@@ -27,17 +30,21 @@ public class MahoutTest {
 		String outputDirectory = "???";
 		String tempDirectory = "???";
 			
+		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 			
-		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "-el", "--overwrite", "--tempDir", tempDirectory });
 		// Train the classifier
+		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "-el", "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 
+		// Report!
 		System.out.println("features: " + naiveBayesModel.numFeatures());
 		System.out.println("labels: " + naiveBayesModel.numLabels());
 	    
+		// Use the model to create a classifier for new data
 		StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(naiveBayesModel);
+		
 		
 		CreateVectors create = new CreateVectors("pathtoindexfile"); 
 		List<MahoutVector> vectors = create.vectorize();
