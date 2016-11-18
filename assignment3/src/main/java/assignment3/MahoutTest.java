@@ -11,17 +11,20 @@ import org.apache.hadoop.fs.Path;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
+//import org.apache.mahout.classifier.df.tools.Describe;
+
 
 public class MahoutTest {
 	
-	public static void train() throws Throwable
+	public static void trainNB() throws Throwable
 	{
-		// begin by setting up Mahout job
+		// begin by setting up Mahout job background details
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.getLocal(conf);
 			
 		// path to sequence file
 		Path seqFilePath = new Path("???");
+		// make sure we have split into trainset and testset
 			
 		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
@@ -45,7 +48,7 @@ public class MahoutTest {
 		// Use the model to create a classifier for new data
 		StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(naiveBayesModel);
 		
-		// generate vectors 
+		// generate vectors from testset
 		CreateVectors create = new CreateVectors("pathtoindexfile"); 
 		List<MahoutVector> vectors = create.vectorize();
 		// get labels associated with vectors
@@ -59,7 +62,7 @@ public class MahoutTest {
 	    	Vector<Double> prediction = (Vector<Double>) classifier.classifyFull(mahoutVector.getVector());
 	    	
 	    	// Professions are returned in alphanumeric sort;
-	    	// make a copy 
+	    	// make a copy to match up with this
 	    	Vector<Double> predictionCopy = (Vector<Double>) prediction.clone();
 	    	Comparator<Double> c = new Comparator<Double>(){
                 public int compare(Double s1,Double s2){
@@ -93,10 +96,16 @@ public class MahoutTest {
 	    }
 	    System.out.println(total + " : " + success + " : " + (total - success) + " " + ((double)success/total));
 	}
+	
+	
 
 	public static void main(String[] args) throws Throwable
 	{
-		train();
+		// runs Naive Bayes test
+		trainNB();
+		// run further classifiers
+		// trainRF();
+		// trainNN();
 	}
 }
 
