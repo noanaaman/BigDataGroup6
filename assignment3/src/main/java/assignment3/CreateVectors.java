@@ -165,9 +165,5 @@ public class CreateVectors {
 		List<String> labelList = new ArrayList<String>(this.labels);
 		Collections.sort(labelList, String.CASE_INSENSITIVE_ORDER);
 		return labelList;
-		
 	}
-
-	
-	
 }
