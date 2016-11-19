@@ -89,8 +89,12 @@ public class CreateVectors {
 		Path seqFilePathTrain = new Path(seqPathTrain);
 		// non-recursively remove any existing version of the sequence file first
 		fs.delete(seqFilePathTrain,false);
+		
+		// set up the filesystem, again
+		Configuration conf2 = new Configuration();
+		FileSystem fs2 = FileSystem.getLocal(conf2);
 		// set up datastream
-		FSDataInputStream stream = fs.open(new Path(indexPath));
+		FSDataInputStream stream = fs2.open(new Path(indexPath));
 		// testset size
 		int testSize = 6080;
 		// testset
