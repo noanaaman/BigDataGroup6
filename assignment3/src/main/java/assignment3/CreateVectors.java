@@ -76,10 +76,9 @@ public class CreateVectors {
 		
 		return mahoutVector;
 		
-	}
+	}	
 	
-	
-	public List<MahoutVector> createSeqFile(String seqPathTrain) throws IOException
+	public void createSeqFile(String seqPathTrain) throws IOException
 	{
 		// set the path to the index file
 		String indexPath = this.indexPath;
@@ -97,10 +96,14 @@ public class CreateVectors {
 		FileSystem fs2 = FileSystem.get(conf2);
 		// set up datastream
 		FSDataInputStream stream = fs2.open(new Path(indexPath));
+		
 		// testset size
-		int testSize = 60800;
-		// testset
-		List<MahoutVector> testVectors = Lists.newArrayList();
+		int testSize = 60000;
+		// testset output
+		// set up the filesystem, again
+		Configuration conf3 = new Configuration();
+		FileSystem fs3 = FileSystem.get(conf3);
+		// TODO test set output file goes here
 		
 		// read until nothing remains in the stream
 		try {
@@ -109,45 +112,38 @@ public class CreateVectors {
 			int seen = 0;
 			
 			String line = stream.readLine();
-			// testset the first chunk
-			for (int i=0; i<testSize; i++){
-				
-				// generate mahout vector
-				MahoutVector vec = processVec(line);
-				// add to testset
-				testVectors.add(vec);
-				// update line
-				line = stream.readLine();
-				
-				// report
-				seen++;
-				if (seen % 1000 == 0) {
-					System.out.println(String.valueOf(seen) + " vectors processed.  Most recent: ");
-					System.out.println(String.valueOf(vec.getClassifier())+": "+String.valueOf(vec.getVector()));
-				}
-			}
+			
 			// set up the writer for the sequence file
 			SequenceFile.Writer writerTrain = SequenceFile.createWriter(fs, conf, seqFilePathTrain, Text.class, VectorWritable.class);
 			try {
 				
 				// trainset the rest, without storing it in memory
-				while (line != null) {				
+				while (line != null) {	
 					
-					// generate vector
-					MahoutVector vec = processVec(line);
-					// write a copy of the current vector
-					VectorWritable vectorWritable = new VectorWritable();
-					vectorWritable.set(vec.getVector());
-					
-					// add the class label and vector to the sequence file
-					writerTrain.append(new Text("/" + vec.getClassifier() + "/"), vectorWritable);
+					// don't put testset in sequencefile
+					if (seen % testSize == 0) {
+						
+						// write this line straight back into testfile
+						// TODO repair this line
+						testFile.write(line);
+						
+					} else {
+						// generate vector
+						MahoutVector vec = processVec(line);
+						// write a copy of the current vector
+						VectorWritable vectorWritable = new VectorWritable();
+						vectorWritable.set(vec.getVector());
+						
+						// add the class label and vector to the sequence file
+						writerTrain.append(new Text("/" + vec.getClassifier() + "/"), vectorWritable);
+					}
 					
 					// update current line; end of stream returns null
 					line = stream.readLine();
 					
 					// report
 					seen++;
-					if (seen % 1000 == 0) {
+					if (seen % 10000 == 0) {
 						System.out.println(String.valueOf(seen) + " vectors processed.  Most recent: ");
 						System.out.println(String.valueOf(vec.getClassifier())+": "+String.valueOf(vec.getVector()));
 					}
@@ -156,15 +152,13 @@ public class CreateVectors {
 			} finally {	
 				// tidy up by closing the sequence file
 				writerTrain.close();
+				// TODO close the testset input file
 			}
 			
 		} finally {
 			// tidy up by closing the buffered reader
 			stream.close();
 		}
-		
-		// return the testset vectors
-		return testVectors;
 	}
 	
 	
