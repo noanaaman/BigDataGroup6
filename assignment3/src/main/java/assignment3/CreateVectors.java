@@ -120,50 +120,45 @@ public class CreateVectors {
 		fs.delete(seqFilePathTrain,false);
 		fs.delete(seqFilePathTest,false);
 		
+		// create a list of vectors using the supplied path
+		List<MahoutVector> allVectors = vectorize(indexPath);
+		
+		// split into train and test
+		final Double proportion = 0.9;
+		final int trainSize = (int) (allVectors.size()*proportion);
+		List<MahoutVector> trainVectors = allVectors.subList(0, trainSize);
+		List<MahoutVector> testVectors = allVectors.subList(trainSize, allVectors.size());
+		
 		// set up the writer for the sequence file
 		SequenceFile.Writer writerTrain = SequenceFile.createWriter(fs, conf, seqFilePathTrain, Text.class, VectorWritable.class);
-		SequenceFile.Writer writerTest = SequenceFile.createWriter(fs, conf, seqFilePathTest, Text.class, VectorWritable.class);
-
 		try
-		{
-			// create a list of vectors using the supplied path
-			List<MahoutVector> allVectors = vectorize(indexPath);
-			
-			// split into train and test
-			final Double proportion = 0.9;
-			final int trainSize = (int) (allVectors.size()*proportion);
-			List<MahoutVector> trainVectors = allVectors.subList(0, trainSize);
-			List<MahoutVector> testVectors = allVectors.subList(trainSize, allVectors.size());
-			List<List<MahoutVector>> datasets = new ArrayList<List<MahoutVector>>();
-			datasets.add(0, testVectors);
-			datasets.add(0,trainVectors);
-
-			// Init the labels
-			int i=0;
-			for (List<MahoutVector> vectors : datasets) {
+		{ 
+			for (MahoutVector vector : trainVectors)
+			{
+				// write a copy of the current vector
+				VectorWritable vectorWritable = new VectorWritable();
+				vectorWritable.set(vector.getVector());
 				
-				for (MahoutVector vector : vectors)
-				{
-					// write a copy of the current vector
-					VectorWritable vectorWritable = new VectorWritable();
-					vectorWritable.set(vector.getVector());
-					
-					// add the class label and vector to the sequence file
-					if (i==0){
-						writerTrain.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
-					} else {
-						writerTest.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
-					}
-				}
-				// move on to next writer
-				i++;
+				// add the class label and vector to the sequence file
+				writerTrain.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
 			}
-		}
-
-		finally
-		{
+		} 
+		finally {	
 			// tidy up by closing the sequence file
 			writerTrain.close();
+		}
+		// set up writer
+		SequenceFile.Writer writerTest = SequenceFile.createWriter(fs, conf, seqFilePathTest, Text.class, VectorWritable.class);
+		try {
+			for (MahoutVector vector : trainVectors){
+				// write a copy of the current vector
+				VectorWritable vectorWritable = new VectorWritable();
+				vectorWritable.set(vector.getVector());
+				writerTest.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
+				}
+			}
+		finally {
+			// close the writer
 			writerTest.close();
 		}
 	}
