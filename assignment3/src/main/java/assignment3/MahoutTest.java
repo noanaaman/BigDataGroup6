@@ -43,7 +43,6 @@ public class MahoutTest {
 		List<MahoutVector> vectors = create.vectorize();
 		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
-		System.out.println(professionsList);
 		// create sequence file
 		create.createSeqFile(sequenceFile);
 			

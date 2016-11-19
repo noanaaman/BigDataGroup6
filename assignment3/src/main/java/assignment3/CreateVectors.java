@@ -80,12 +80,12 @@ public class CreateVectors {
 				// initial size: size of a double hashmap representing the vector
 				int listSize = indicesSIL.getIndices().size();
 				Vector vector = new RandomAccessSparseVector(vocab.size()+listSize, listSize);
-				System.out.println(profession + " " + Integer.toString(listSize));
 				for (StringInteger si: indicesSIL.getIndices()) {
 					// add each lemma to vocabulary map and draw its index; set
 					// its count for this instance at that position of the vector
 					vector.set(processString(si.getString()),(double)si.getValue());
 				}
+				System.out.println(vector);
 				
 				// create a Mahout-ready vector out of this instance's vector
 				MahoutVector mahoutVector = new MahoutVector();
