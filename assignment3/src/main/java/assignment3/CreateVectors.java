@@ -65,7 +65,9 @@ public class CreateVectors {
 			// its count for this instance at that position of the vector
 			vector.set(processString(si.getString()),(double)si.getValue());
 		}
-		System.out.println(vector);
+		
+		// uncomment to show successful vector generation
+		// System.out.println(vector);
 		
 		// create a Mahout-ready vector out of this instance's vector
 		MahoutVector mahoutVector = new MahoutVector();
@@ -102,6 +104,10 @@ public class CreateVectors {
 		
 		// read until nothing remains in the stream
 		try {
+			
+			// index for pretty reporting
+			int seen = 0;
+			
 			String line = stream.readLine();
 			// testset the first chunk
 			for (int i=0; i<testSize; i++){
@@ -113,6 +119,13 @@ public class CreateVectors {
 				// update line
 				line = stream.readLine();
 				
+				// report
+				seen++;
+				if (seen % 1000 == 0) {
+					String notification = String.valueOf(seen) + " vectors processed.  Most recent: ";
+					System.out.println(notification);
+					System.out.println(vec);
+				}
 			}
 			// set up the writer for the sequence file
 			SequenceFile.Writer writerTrain = SequenceFile.createWriter(fs, conf, seqFilePathTrain, Text.class, VectorWritable.class);
@@ -132,6 +145,14 @@ public class CreateVectors {
 					
 					// update current line; end of stream returns null
 					line = stream.readLine();
+					
+					// report
+					seen++;
+					if (seen % 1000 == 0) {
+						String notification = String.valueOf(seen) + " vectors processed.  Most recent: ";
+						System.out.println(notification);
+						System.out.println(vec);
+					}
 				}
 				
 			} finally {	
