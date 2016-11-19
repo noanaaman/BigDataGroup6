@@ -39,69 +39,41 @@ public class CreateVectors {
 		this.labels = new HashSet<String>();
 	}
 	
-	
-	// vectorizer with no arguments
-	public List<MahoutVector> vectorize() throws IOException {
-		return vectorize(this.indexPath);
-	}
-	
-	// creates vectors for the given index file
-	public List<MahoutVector> vectorize(String indexPath) throws IOException {
+	// processes one line into vector
+	public MahoutVector processVec(String line) throws IOException {
 		
-		// initialize vectors and file reader
-		List<MahoutVector> vectors = Lists.newArrayList();
+		// split the line on tabs
+		String[] profIndex = line.split("\t");
+		// store the profession as class label
+		String profession = profIndex[0];
+		profession = profession.toLowerCase();
+		labels.add(profession);
 		
-		Configuration conf = new Configuration();
-		FileSystem fs = FileSystem.get(conf);
-		FSDataInputStream br = fs.open(new Path(indexPath));
+		// initialize a list of <string, integer> pairs
+		StringIntegerList indicesSIL = new StringIntegerList();
+		// and store into it each instance's <lemma, count> list
 		
-		//BufferedReader br = new BufferedReader(new FileReader(hdfsPath));
-		
-		// read until nothing remains in the buffer
-		try {
-			String line = br.readLine();
-			
-			while (line != null) {				
-				// split the line on tabs
-				String[] profIndex = line.split("\t");
-				// store the profession as class label
-				String profession = profIndex[0];
-				profession = profession.toLowerCase();
-				labels.add(profession);
-				
-				// initialize a list of <string, integer> pairs
-				StringIntegerList indicesSIL = new StringIntegerList();
-				// and store into it each instance's <lemma, count> list
-				indicesSIL.readFromString(profIndex[1]);
+		indicesSIL.readFromString(profIndex[1]);
 
-				// initialize a new sparse vector for this line with attributes:
-				// cardinality: estimate of initialized sparseness
-				// initial size: size of a double hashmap representing the vector
-				int listSize = indicesSIL.getIndices().size();
-				Vector vector = new RandomAccessSparseVector(vocab.size()*2+listSize*2, listSize*2);
-				for (StringInteger si: indicesSIL.getIndices()) {
-					// add each lemma to vocabulary map and draw its index; set
-					// its count for this instance at that position of the vector
-					vector.set(processString(si.getString()),(double)si.getValue());
-				}
-				System.out.println(vector);
-				
-				// create a Mahout-ready vector out of this instance's vector
-				MahoutVector mahoutVector = new MahoutVector();
-				mahoutVector.setClassifier(profession); 
-				mahoutVector.setVector(vector);
-				vectors.add(mahoutVector);
-				
-				// update current line; end of stream returns null
-				line = br.readLine();
-			}
-			// return list of all vectors in the associated file
-			return vectors;
-			
-		} finally {
-			// tidy up by closing the buffered reader
-			br.close();
+		// initialize a new sparse vector for this line with attributes:
+		// cardinality: estimate of initialized sparseness
+		// initial size: size of a double hashmap representing the vector
+		int listSize = indicesSIL.getIndices().size();
+		Vector vector = new RandomAccessSparseVector(vocab.size()*2+listSize*2, listSize*2);
+		for (StringInteger si: indicesSIL.getIndices()) {
+			// add each lemma to vocabulary map and draw its index; set
+			// its count for this instance at that position of the vector
+			vector.set(processString(si.getString()),(double)si.getValue());
 		}
+		System.out.println(vector);
+		
+		// create a Mahout-ready vector out of this instance's vector
+		MahoutVector mahoutVector = new MahoutVector();
+		mahoutVector.setClassifier(profession); 
+		mahoutVector.setVector(vector);
+		
+		return mahoutVector;
+		
 	}
 	
 	
@@ -117,33 +89,55 @@ public class CreateVectors {
 		Path seqFilePathTrain = new Path(seqPathTrain);
 		// non-recursively remove any existing version of the sequence file first
 		fs.delete(seqFilePathTrain,false);
+		// set up datastream
+		FSDataInputStream stream = fs.open(new Path(indexPath));
+		// testset size
+		int testSize = 6080;
+		// testset
+		List<MahoutVector> testVectors = Lists.newArrayList();
 		
-		// create a list of vectors using the supplied path
-		List<MahoutVector> allVectors = vectorize(indexPath);
-		
-		// split into train and test
-		final Double proportion = 0.9;
-		final int trainSize = (int) (allVectors.size()*proportion);
-		List<MahoutVector> trainVectors = allVectors.subList(0, trainSize);
-		List<MahoutVector> testVectors = allVectors.subList(trainSize, allVectors.size());
-		
-		// set up the writer for the sequence file
-		SequenceFile.Writer writerTrain = SequenceFile.createWriter(fs, conf, seqFilePathTrain, Text.class, VectorWritable.class);
-		try
-		{ 
-			for (MahoutVector vector : trainVectors)
-			{
-				// write a copy of the current vector
-				VectorWritable vectorWritable = new VectorWritable();
-				vectorWritable.set(vector.getVector());
+		// read until nothing remains in the stream
+		try {
+			String line = stream.readLine();
+			// testset the first chunk
+			for (int i=0; i<testSize; i++){
 				
-				// add the class label and vector to the sequence file
-				writerTrain.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
+				// generate mahout vector
+				MahoutVector vec = processVec(line);
+				// add to testset
+				testVectors.add(vec);
+				// update line
+				line = stream.readLine();
+				
 			}
-		} 
-		finally {	
-			// tidy up by closing the sequence file
-			writerTrain.close();
+			// set up the writer for the sequence file
+			SequenceFile.Writer writerTrain = SequenceFile.createWriter(fs, conf, seqFilePathTrain, Text.class, VectorWritable.class);
+			try {
+				
+				// trainset the rest, without storing it in memory
+				while (line != null) {				
+					
+					// generate vector
+					MahoutVector vec = processVec(line);
+					// write a copy of the current vector
+					VectorWritable vectorWritable = new VectorWritable();
+					vectorWritable.set(vec.getVector());
+					
+					// add the class label and vector to the sequence file
+					writerTrain.append(new Text("/" + vec.getClassifier() + "/"), vectorWritable);
+					
+					// update current line; end of stream returns null
+					line = stream.readLine();
+				}
+				
+			} finally {	
+				// tidy up by closing the sequence file
+				writerTrain.close();
+			}
+			
+		} finally {
+			// tidy up by closing the buffered reader
+			stream.close();
 		}
 		
 		// return the testset vectors
