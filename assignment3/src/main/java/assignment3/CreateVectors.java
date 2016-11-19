@@ -59,7 +59,7 @@ public class CreateVectors {
 		// cardinality: estimate of initialized sparseness
 		// initial size: size of a double hashmap representing the vector
 		int listSize = indicesSIL.getIndices().size();
-		Vector vector = new RandomAccessSparseVector(vocab.size()*2+listSize*2, listSize*2);
+		Vector vector = new RandomAccessSparseVector(vocab.size()*2+listSize*2, Integer.MAX_VALUE);
 		for (StringInteger si: indicesSIL.getIndices()) {
 			// add each lemma to vocabulary map and draw its index; set
 			// its count for this instance at that position of the vector
@@ -98,7 +98,7 @@ public class CreateVectors {
 		// set up datastream
 		FSDataInputStream stream = fs2.open(new Path(indexPath));
 		// testset size
-		int testSize = 6080;
+		int testSize = 60800;
 		// testset
 		List<MahoutVector> testVectors = Lists.newArrayList();
 		
@@ -122,9 +122,8 @@ public class CreateVectors {
 				// report
 				seen++;
 				if (seen % 1000 == 0) {
-					String notification = String.valueOf(seen) + " vectors processed.  Most recent: ";
-					System.out.println(notification);
-					System.out.println(vec);
+					System.out.println(String.valueOf(seen) + " vectors processed.  Most recent: ");
+					System.out.println(String.valueOf(vec.getClassifier())+": "+String.valueOf(vec.getVector()));
 				}
 			}
 			// set up the writer for the sequence file
@@ -149,9 +148,8 @@ public class CreateVectors {
 					// report
 					seen++;
 					if (seen % 1000 == 0) {
-						String notification = String.valueOf(seen) + " vectors processed.  Most recent: ";
-						System.out.println(notification);
-						System.out.println(vec);
+						System.out.println(String.valueOf(seen) + " vectors processed.  Most recent: ");
+						System.out.println(String.valueOf(vec.getClassifier())+": "+String.valueOf(vec.getVector()));
 					}
 				}
 				
