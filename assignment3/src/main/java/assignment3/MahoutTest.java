@@ -8,9 +8,16 @@ import java.util.Vector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
+import org.apache.mahout.math.VectorWritable;
+
+import com.google.common.collect.Lists;
 //import org.apache.mahout.classifier.df.tools.Describe;
 
 
@@ -27,25 +34,23 @@ public class MahoutTest {
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
 			
-		String sequenceFileTrain = "./seqfiletrain";
-		String sequenceFileTest = "./seqfiletest";
+		// set up paths
+		String sequenceFileTrain = "/user/hadoop06/trainseqfilepath";
+		String sequenceFileTest = "/user/hadoop06/testseqfilepath";
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
 		String indexPath = "/user/hadoop06/output004/part-r-00000";
-		
-		// make sure we have split into trainset and testset
 			
 		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 		
 		CreateVectors create = new CreateVectors(indexPath); 
-		// generate vectors from testset
-		List<MahoutVector> vectors = create.vectorize();
 		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
-		// create sequence file
-		create.createSeqFile(sequenceFileTrain,sequenceFileTest);
+		System.out.println(professionsList);
+		// create sequence files and save the testset
+		List<MahoutVector> testVecs = create.createSeqFile(sequenceFileTrain);
 			
 		// Train the classifier
 		// removed "-el" before overwrite
@@ -62,7 +67,7 @@ public class MahoutTest {
 	    int total = 0;
 	    int success = 0;
 	    
-	    for (MahoutVector mahoutVector : vectors)
+	    for (MahoutVector mahoutVector : testVecs)
 	    {
 	    	Vector<Double> prediction = (Vector<Double>) classifier.classifyFull(mahoutVector.getVector());
 	    	

@@ -105,7 +105,7 @@ public class CreateVectors {
 	}
 	
 	
-	public void createSeqFile(String seqPathTrain, String seqPathTest) throws IOException
+	public List<MahoutVector> createSeqFile(String seqPathTrain) throws IOException
 	{
 		// set the path to the index file
 		String indexPath = this.indexPath;
@@ -115,10 +115,8 @@ public class CreateVectors {
 		FileSystem fs = FileSystem.getLocal(conf);
 		//Path seqFilePath = new Path(indexPath);
 		Path seqFilePathTrain = new Path(seqPathTrain);
-		Path seqFilePathTest = new Path(seqPathTest);
 		// non-recursively remove any existing version of the sequence file first
 		fs.delete(seqFilePathTrain,false);
-		fs.delete(seqFilePathTest,false);
 		
 		// create a list of vectors using the supplied path
 		List<MahoutVector> allVectors = vectorize(indexPath);
@@ -147,20 +145,9 @@ public class CreateVectors {
 			// tidy up by closing the sequence file
 			writerTrain.close();
 		}
-		// set up writer
-		SequenceFile.Writer writerTest = SequenceFile.createWriter(fs, conf, seqFilePathTest, Text.class, VectorWritable.class);
-		try {
-			for (MahoutVector vector : trainVectors){
-				// write a copy of the current vector
-				VectorWritable vectorWritable = new VectorWritable();
-				vectorWritable.set(vector.getVector());
-				writerTest.append(new Text("/" + vector.getClassifier() + "/"), vectorWritable);
-				}
-			}
-		finally {
-			// close the writer
-			writerTest.close();
-		}
+		
+		// return the testset vectors
+		return testVectors;
 	}
 	
 	
