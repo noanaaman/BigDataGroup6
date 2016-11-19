@@ -27,7 +27,8 @@ public class MahoutTest {
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();
 		trainNaiveBayes.setConf(conf);
 			
-		String sequenceFile = "/user/hadoop06/seqfilepath";
+		String sequenceFileTrain = "./seqfiletrain";
+		String sequenceFileTest = "./seqfiletest";
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
 		String indexPath = "/user/hadoop06/output004/part-r-00000";
@@ -44,11 +45,11 @@ public class MahoutTest {
 		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
 		// create sequence file
-		create.createSeqFile(sequenceFile);
+		create.createSeqFile(sequenceFileTrain,sequenceFileTest);
 			
 		// Train the classifier
 		// removed "-el" before overwrite
-		trainNaiveBayes.run(new String[] { "--input", sequenceFile, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
+		trainNaiveBayes.run(new String[] { "--input", sequenceFileTrain, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 
 		// Report!
