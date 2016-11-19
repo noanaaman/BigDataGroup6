@@ -28,7 +28,7 @@ public class MahoutTest {
 		// begin by setting up Mahout job background details
 		Configuration conf = new Configuration();
 		conf.set("mapred.job.queue.name", "hadoop06");
-		FileSystem fs = FileSystem.getLocal(conf);
+		FileSystem fs = FileSystem.get(conf);
 			
 		// set up NB
 		TrainNaiveBayesJob trainNaiveBayes = new TrainNaiveBayesJob();

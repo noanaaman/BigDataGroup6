@@ -84,7 +84,7 @@ public class CreateVectors {
 		
 		// set up the filesystem
 		Configuration conf = new Configuration();
-		FileSystem fs = FileSystem.getLocal(conf);
+		FileSystem fs = FileSystem.get(conf);
 		//Path seqFilePath = new Path(indexPath);
 		Path seqFilePathTrain = new Path(seqPathTrain);
 		// non-recursively remove any existing version of the sequence file first
@@ -92,7 +92,7 @@ public class CreateVectors {
 		
 		// set up the filesystem, again
 		Configuration conf2 = new Configuration();
-		FileSystem fs2 = FileSystem.getLocal(conf2);
+		FileSystem fs2 = FileSystem.get(conf2);
 		// set up datastream
 		FSDataInputStream stream = fs2.open(new Path(indexPath));
 		// testset size
