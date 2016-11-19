@@ -59,7 +59,7 @@ public class CreateVectors {
 		// cardinality: estimate of initialized sparseness
 		// initial size: size of a double hashmap representing the vector
 		int listSize = indicesSIL.getIndices().size();
-		Vector vector = new RandomAccessSparseVector(vocab.size()*2+listSize*2, Integer.MAX_VALUE);
+		Vector vector = new RandomAccessSparseVector(vocab.size()*2+listSize*2, vocab.size()*2+listSize*2);
 		for (StringInteger si: indicesSIL.getIndices()) {
 			// add each lemma to vocabulary map and draw its index; set
 			// its count for this instance at that position of the vector
