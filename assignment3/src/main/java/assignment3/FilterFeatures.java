@@ -58,6 +58,8 @@ public class FilterFeatures {
 				line = stream.readLine();
 			}
 			
+			stream.close();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,7 +78,7 @@ public class FilterFeatures {
 			FileSystem fs2 = FileSystem.get(conf2);
 			File file = new File("filteredIndex");
 			file.createNewFile();
-			BufferedWriter testFile = new BufferedWriter(new FileWriter(file));
+			BufferedWriter filteredFile = new BufferedWriter(new FileWriter(file));
 			
 			String line = stream.readLine();
 			
@@ -95,16 +97,21 @@ public class FilterFeatures {
 				
 				StringIntegerList filtered = new StringIntegerList(dstSIL);
 				
-				testFile.write(profIndex[0] + "\t" + filtered.toString());
-				testFile.newLine();
+				filteredFile.write(profIndex[0] + "\t" + filtered.toString());
+				filteredFile.newLine();
 				
 				line = stream.readLine();
 			}
 			
+			stream.close();
+			filteredFile.flush();
+			filteredFile.close();
+			
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 		
 	}
 	
