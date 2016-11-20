@@ -1,5 +1,8 @@
 package assignment3;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,10 +106,13 @@ public class CreateVectors {
 		// set up the filesystem, again
 		Configuration conf3 = new Configuration();
 		FileSystem fs3 = FileSystem.get(conf3);
-		// TODO test set output file goes here
-		
+
 		// read until nothing remains in the stream
 		try {
+			//set up test set output file
+			File file = new File("testset.txt");
+			file.createNewFile();
+			BufferedWriter testFile = new BufferedWriter(new FileWriter(file));
 			
 			// index for pretty reporting
 			int seen = 0;
@@ -126,6 +132,7 @@ public class CreateVectors {
 						// write this line straight back into testfile
 						// TODO repair this line
 						testFile.write(line);
+						testFile.newLine();
 						
 					} else {
 						// generate vector
@@ -145,7 +152,7 @@ public class CreateVectors {
 					seen++;
 					if (seen % 10000 == 0) {
 						System.out.println(String.valueOf(seen) + " vectors processed.  Most recent: ");
-						System.out.println(String.valueOf(vec.getClassifier())+": "+String.valueOf(vec.getVector()));
+						//System.out.println(String.valueOf(vec.getClassifier())+": "+String.valueOf(vec.getVector()));
 					}
 				}
 				
@@ -153,6 +160,8 @@ public class CreateVectors {
 				// tidy up by closing the sequence file
 				writerTrain.close();
 				// TODO close the testset input file
+				testFile.flush();
+				testFile.close();
 			}
 			
 		} finally {

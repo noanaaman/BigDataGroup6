@@ -30,9 +30,9 @@ public class MahoutTest {
 		Configuration conf = new Configuration();
 		conf.set("mapred.job.queue.name", "hadoop06");
 		// compressing
-		conf.set("mapred.compress.map.output", "true");
-		conf.set("mapred.output.compression.type", "BLOCK"); 
-		conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.Snappy");
+		//conf.set("mapred.compress.map.output", "true");
+		//conf.set("mapred.output.compression.type", "BLOCK"); 
+		//conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
 		FileSystem fs = FileSystem.get(conf);
 			
 		// set up NB
