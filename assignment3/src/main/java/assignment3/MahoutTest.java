@@ -45,13 +45,18 @@ public class MahoutTest {
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
 		String indexPath = "/user/hadoop06/output004/part-r-00000";
+		String filteredIndex = "/user/hadoop06/filteredIndex";
 	    String testIndexPath = "/user/hadoop06/testset.txt";
 			
 		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 		
-		CreateVectors create = new CreateVectors(indexPath); 
+		FilterFeatures filter = new FilterFeatures(indexPath);
+		filter.countFeatures();
+		filter.removeFeatures();
+		
+		CreateVectors create = new CreateVectors(filteredIndex); 
 		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
 		System.out.println(professionsList);
