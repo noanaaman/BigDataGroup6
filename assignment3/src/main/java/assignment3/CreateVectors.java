@@ -20,7 +20,6 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import util.StringIntegerList;
@@ -100,8 +99,7 @@ public class CreateVectors {
 		// set up datastream
 		FSDataInputStream stream = fs2.open(new Path(indexPath));
 		
-		// testset size
-		int testSize = 60000;
+		
 		// testset output
 		// set up the filesystem, again
 		Configuration conf3 = new Configuration();
@@ -114,7 +112,7 @@ public class CreateVectors {
 			file.createNewFile();
 			BufferedWriter testFile = new BufferedWriter(new FileWriter(file));
 			
-			// index for pretty reporting
+			// index for pretty reporting and taking 10% of the data as test instances
 			int seen = 0;
 			
 			String line = stream.readLine();
@@ -124,10 +122,10 @@ public class CreateVectors {
 			try {
 				
 				// trainset the rest, without storing it in memory
-				while (line != null) {	
+				while (seen<400000) {	
 					
-					// don't put testset in sequencefile
-					if (seen % testSize == 0) {
+					//every 10th instance put in the test set
+					if (seen % 10 == 0) {
 						
 						// write this line straight back into testfile
 						// TODO repair this line
