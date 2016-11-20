@@ -3,7 +3,6 @@ package assignment3;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -16,6 +15,7 @@ import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
+import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
 import com.google.common.collect.Lists;
@@ -88,26 +88,26 @@ public class MahoutTest {
 				// generate vector
 				MahoutVector mahoutVector = create.processVec(line);
 				
-				Vector<Double> prediction = (Vector<Double>) classifier.classifyFull(mahoutVector.getVector());
+				Vector prediction = classifier.classifyFull(mahoutVector.getVector());
 		    	
 		    	// Professions are returned in alphanumeric sort;
 		    	// make a copy to match up with this
-		    	Vector<Double> predictionCopy = (Vector<Double>) prediction.clone();
+		    	Vector predictionCopy = prediction.clone();
 		    	Comparator<Double> c = new Comparator<Double>(){
 	                public int compare(Double s1,Double s2){
 	                	return s1.compareTo(s2);
 	              }};
-	            Collections.sort(predictionCopy, c);
 	            
-	            //top 3 values from the prediction vector
-	            Double top1 = predictionCopy.get(0);
-	            Double top2 = predictionCopy.get(1);
-	            Double top3 = predictionCopy.get(2);
 	            
 	            //indexes of the top 3 
-	            int indexofTop1 = prediction.indexOf(top1);
-	            int indexofTop2 = prediction.indexOf(top2);
-	            int indexofTop3 = prediction.indexOf(top3);
+	            //get the index of the max element, then set the max element to 0 (in the copy)
+	            //then get the the new max element's index, repeat for #3
+	            int indexofTop1 = predictionCopy.maxValueIndex();
+	            predictionCopy.set(indexofTop1, 0);
+	            int indexofTop2 = predictionCopy.maxValueIndex();
+	            predictionCopy.set(indexofTop2, 0);
+	            int indexofTop3 = predictionCopy.maxValueIndex();
+
 	            
 	            //get the top three predictions
 	            String prediction1 = professionsList.get(indexofTop1);
