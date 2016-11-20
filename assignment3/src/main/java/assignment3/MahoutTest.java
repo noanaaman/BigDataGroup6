@@ -45,7 +45,7 @@ public class MahoutTest {
 		String outputDirectory = "/user/hadoop06/output005";
 		String tempDirectory = "/user/hadoop06/temp";
 		String indexPath = "/user/hadoop06/output004/part-r-00000";
-	    String testIndexPath = ""; // TODO
+	    String testIndexPath = "/user/hadoop06/testset.txt";
 			
 		// clear out current versions of directories recursively if they exist
 		fs.delete(new Path(outputDirectory),true);
