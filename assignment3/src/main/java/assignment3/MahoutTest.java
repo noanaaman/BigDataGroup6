@@ -55,12 +55,12 @@ public class MahoutTest {
 		/* 
 		 * // TODO remove this comment to regenerate files
 		 * 
-		 */
+		 *
 		// filter out features to attempt to avoid OOM errors
 		FilterFeatures filter = new FilterFeatures(indexPath,filteredIndex);
 		filter.countFeatures();
 		filter.removeFeatures();
-		/*
+		/
 		*
 		*/
 		/*
@@ -83,7 +83,7 @@ public class MahoutTest {
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 		
 		// close this fs
-		fs.close();
+		//fs.close();
 
 		// Report!
 		System.out.println("features: " + naiveBayesModel.numFeatures());
