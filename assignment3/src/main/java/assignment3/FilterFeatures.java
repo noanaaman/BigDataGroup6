@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -31,9 +32,11 @@ public class FilterFeatures {
 	
 	private static final Map<String, Integer> freqDist = Maps.newHashMap();
 	private String indexPath;
+	private String filteredIndex;
 	
-	public FilterFeatures(String indexPath) {
+	public FilterFeatures(String indexPath, String filteredIndex) {
 		this.indexPath = indexPath;
+		this.filteredIndex = filteredIndex;
 	}
 	
 	public void countFeatures() {
@@ -76,9 +79,7 @@ public class FilterFeatures {
 			
 			Configuration conf2 = new Configuration();
 			FileSystem fs2 = FileSystem.get(conf2);
-			File file = new File("filteredIndex");
-			file.createNewFile();
-			BufferedWriter filteredFile = new BufferedWriter(new FileWriter(file));
+			FSDataOutputStream file = fs2.create(new Path(this.filteredIndex));
 			
 			String line = stream.readLine();
 			
@@ -97,15 +98,13 @@ public class FilterFeatures {
 				
 				StringIntegerList filtered = new StringIntegerList(dstSIL);
 				
-				filteredFile.write(profIndex[0] + "\t" + filtered.toString());
-				filteredFile.newLine();
+				file.writeUTF(profIndex[0] + "\t" + filtered.toString() + "\n");
 				
 				line = stream.readLine();
 			}
 			
 			stream.close();
-			filteredFile.flush();
-			filteredFile.close();
+			file.close();
 			
 			
 		} catch (Exception e) {

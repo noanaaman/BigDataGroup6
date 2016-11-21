@@ -52,7 +52,7 @@ public class MahoutTest {
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 		
-		FilterFeatures filter = new FilterFeatures(indexPath);
+		FilterFeatures filter = new FilterFeatures(indexPath,filteredIndex);
 		filter.countFeatures();
 		filter.removeFeatures();
 		
