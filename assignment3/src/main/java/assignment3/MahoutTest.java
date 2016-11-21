@@ -1,5 +1,6 @@
 package assignment3;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -79,7 +80,9 @@ public class MahoutTest {
 		
 		// Train the classifier
 		// removed "-el" before overwrite
-		trainNaiveBayes.run(new String[] { "--input", sequenceFileTrain, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
+		File sFT = new File(sequenceFileTrain);
+		String sftPath = sFT.getAbsolutePath();
+		trainNaiveBayes.run(new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 		
 		// close this fs
