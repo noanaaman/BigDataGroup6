@@ -107,7 +107,8 @@ public class FilterFeatures {
 				}
 				
 				StringIntegerList filtered = new StringIntegerList(dstSIL);				
-				file.writeUTF(profIndex[0] + "\t" + filtered.toString() + "\n");
+				//file.writeUTF(profIndex[0] + "\t" + filtered.toString() + "\n");
+				file.writeChars(profIndex[0] + "\t" + filtered.toString() + "\n");
 				
 				// report
 				seen++;

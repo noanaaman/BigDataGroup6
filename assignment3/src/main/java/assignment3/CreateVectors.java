@@ -53,7 +53,7 @@ public class CreateVectors {
 		if (profIndex.length == 2) {
 			String profession = profIndex[0];
 			profession = profession.toLowerCase();
-			labels.add(profession);
+			this.labels.add(profession);
 			
 			// initialize a list of <string, integer> pairs
 			StringIntegerList indicesSIL = new StringIntegerList();

@@ -55,12 +55,12 @@ public class MahoutTest {
 		/* 
 		 * // TODO remove this comment to regenerate files
 		 * 
-		 * 
+		 */
 		// filter out features to attempt to avoid OOM errors
 		FilterFeatures filter = new FilterFeatures(indexPath,filteredIndex);
 		filter.countFeatures();
 		filter.removeFeatures();
-		*
+		/*
 		*
 		*/
 		/*
