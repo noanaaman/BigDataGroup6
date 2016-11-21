@@ -47,34 +47,38 @@ public class CreateVectors {
 		// split the line on tabs
 		String[] profIndex = line.split("\t");
 		// store the profession as class label
-		String profession = profIndex[0];
-		profession = profession.toLowerCase();
-		labels.add(profession);
 		
-		// initialize a list of <string, integer> pairs
-		StringIntegerList indicesSIL = new StringIntegerList();
-		// and store into it each instance's <lemma, count> list
-		
-		indicesSIL.readFromString(profIndex[1]);
-
-		// initialize a new sparse vector for this line with attributes:
-		// cardinality: estimate of initialized sparseness
-		// initial size: size of a double hashmap representing the vector
-		int listSize = indicesSIL.getIndices().size();
-		Vector vector = new RandomAccessSparseVector(Integer.MAX_VALUE, listSize*2);
-		for (StringInteger si: indicesSIL.getIndices()) {
-			// add each lemma to vocabulary map and draw its index; set
-			// its count for this instance at that position of the vector
-			vector.set(processString(si.getString()),(double)si.getValue());
-		}
-		
-		// uncomment to show successful vector generation
-		// System.out.println(vector);
-		
-		// create a Mahout-ready vector out of this instance's vector
 		MahoutVector mahoutVector = new MahoutVector();
-		mahoutVector.setClassifier(profession); 
-		mahoutVector.setVector(vector);
+		
+		if (profIndex.length == 2) {
+			String profession = profIndex[0];
+			profession = profession.toLowerCase();
+			labels.add(profession);
+			
+			// initialize a list of <string, integer> pairs
+			StringIntegerList indicesSIL = new StringIntegerList();
+			// and store into it each instance's <lemma, count> list
+			
+			indicesSIL.readFromString(profIndex[1]);
+
+			// initialize a new sparse vector for this line with attributes:
+			// cardinality: estimate of initialized sparseness
+			// initial size: size of a double hashmap representing the vector
+			int listSize = indicesSIL.getIndices().size();
+			Vector vector = new RandomAccessSparseVector(Integer.MAX_VALUE, listSize*2);
+			for (StringInteger si: indicesSIL.getIndices()) {
+				// add each lemma to vocabulary map and draw its index; set
+				// its count for this instance at that position of the vector
+				vector.set(processString(si.getString()),(double)si.getValue());
+			}
+			
+			// uncomment to show successful vector generation
+			// System.out.println(vector);
+			
+			// create a Mahout-ready vector out of this instance's vector
+			mahoutVector.setClassifier(profession); 
+			mahoutVector.setVector(vector);
+		}
 		
 		return mahoutVector;
 		
@@ -136,11 +140,14 @@ public class CreateVectors {
 						// generate vector
 						MahoutVector vec = processVec(line);
 						// write a copy of the current vector
-						VectorWritable vectorWritable = new VectorWritable();
-						vectorWritable.set(vec.getVector());
+						if (!vec.isEmpty()) {
+							VectorWritable vectorWritable = new VectorWritable();
+							vectorWritable.set(vec.getVector());
+							
+							// add the class label and vector to the sequence file
+							writerTrain.append(new Text("/" + vec.getClassifier() + "/"), vectorWritable);
+						}
 						
-						// add the class label and vector to the sequence file
-						writerTrain.append(new Text("/" + vec.getClassifier() + "/"), vectorWritable);
 					}
 					
 					// update current line; end of stream returns null

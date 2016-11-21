@@ -97,8 +97,14 @@ public class FilterFeatures {
 				}
 				
 				StringIntegerList filtered = new StringIntegerList(dstSIL);
+<<<<<<< Updated upstream
 				
 				file.writeUTF(profIndex[0] + "\t" + filtered.toString() + "\n");
+=======
+				String filteredLine = profIndex[0] + "\t" + filtered.toString();
+				filteredFile.write(filteredLine);
+				filteredFile.newLine();
+>>>>>>> Stashed changes
 				
 				line = stream.readLine();
 			}

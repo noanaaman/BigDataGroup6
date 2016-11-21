@@ -29,5 +29,14 @@ public class MahoutVector {
 	public void setClassifier(String classifier) {
 		this.classifier = classifier;
 	}
+	
+	public boolean isEmpty() {
+		if ((classifier ==null) || (vector == null)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 
 }
