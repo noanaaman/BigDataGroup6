@@ -52,17 +52,31 @@ public class MahoutTest {
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 		
+		/* 
+		 * // TODO remove this comment to regenerate files
+		 * 
+		 * 
+		// filter out features to attempt to avoid OOM errors
 		FilterFeatures filter = new FilterFeatures(indexPath,filteredIndex);
 		filter.countFeatures();
 		filter.removeFeatures();
-		
+		*
+		*
+		*/
+		/*
+		 * // TODO remove this comment to regenerate files
+		 * 
+		 */
 		CreateVectors create = new CreateVectors(filteredIndex); 
 		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
 		System.out.println(professionsList);
 		// create sequence files and split out testset
-		create.createSeqFile(sequenceFileTrain);
-			
+		create.createSeqFile(sequenceFileTrain);	
+		/*
+		*
+		*/
+		
 		// Train the classifier
 		// removed "-el" before overwrite
 		trainNaiveBayes.run(new String[] { "--input", sequenceFileTrain, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
@@ -86,12 +100,15 @@ public class MahoutTest {
 		
 		try {
 			
+			// dummy CreateVectors object for line processing
+			CreateVectors create2 = new CreateVectors("");
+			
 			String line = stream.readLine();
 			
 			while (line != null) {
 				
 				// generate vector
-				MahoutVector mahoutVector = create.processVec(line);
+				MahoutVector mahoutVector = create2.processVec(line);
 				
 				Vector prediction = classifier.classifyFull(mahoutVector.getVector());
 		    	
