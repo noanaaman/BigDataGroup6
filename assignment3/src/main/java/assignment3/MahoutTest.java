@@ -112,14 +112,12 @@ public class MahoutTest {
 				
 				Vector prediction = classifier.classifyFull(mahoutVector.getVector());
 		    	
+				/*
+				 * 
+				 * 
 		    	// Professions are returned in alphanumeric sort;
 		    	// make a copy to match up with this
-		    	Vector predictionCopy = prediction.clone();
-		    	Comparator<Double> c = new Comparator<Double>(){
-	                public int compare(Double s1,Double s2){
-	                	return s1.compareTo(s2);
-	              }};
-	            
+		    	Vector predictionCopy = prediction.clone();	            
 	            
 	            //indexes of the top 3 
 	            //get the index of the max element, then set the max element to 0 (in the copy)
@@ -129,7 +127,14 @@ public class MahoutTest {
 	            int indexofTop2 = predictionCopy.maxValueIndex();
 	            predictionCopy.set(indexofTop2, 0);
 	            int indexofTop3 = predictionCopy.maxValueIndex();
-
+	            *
+	            *
+	            */
+	            int indexofTop1 = prediction.maxValueIndex();
+	            prediction.set(indexofTop1, 0);
+	            int indexofTop2 = prediction.maxValueIndex();
+	            prediction.set(indexofTop2, 0);
+	            int indexofTop3 = prediction.maxValueIndex();
 	            
 	            //get the top three predictions
 	            String prediction1 = professionsList.get(indexofTop1);
