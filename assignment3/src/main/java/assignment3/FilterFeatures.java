@@ -46,6 +46,8 @@ public class FilterFeatures {
 			FileSystem fs = FileSystem.get(conf);
 			FSDataInputStream stream = fs.open(new Path(indexPath));
 			
+			int seen = 0;
+			
 			String line = stream.readLine();
 			
 			while (line != null) {
@@ -56,6 +58,12 @@ public class FilterFeatures {
 				for (StringInteger si: indicesSIL.getIndices()) {
 					int count = freqDist.containsKey(si.getString()) ? freqDist.get(si.getString()) : 0;
 					freqDist.put(si.getString(), count + 1);
+				}
+				
+				// report
+				seen++;
+				if (seen % 5000 == 0) {
+					System.out.println(String.valueOf(seen) + " vectors read");
 				}
 				
 				line = stream.readLine();
@@ -81,6 +89,8 @@ public class FilterFeatures {
 			FileSystem fs2 = FileSystem.get(conf2);
 			FSDataOutputStream file = fs2.create(new Path(this.filteredIndex));
 			
+			int seen = 0;
+			
 			String line = stream.readLine();
 			
 			while (line != null) {
@@ -98,6 +108,12 @@ public class FilterFeatures {
 				
 				StringIntegerList filtered = new StringIntegerList(dstSIL);				
 				file.writeUTF(profIndex[0] + "\t" + filtered.toString() + "\n");
+				
+				// report
+				seen++;
+				if (seen % 5000 == 0) {
+					System.out.println(String.valueOf(seen) + " vectors filtered");
+				}
 				
 				line = stream.readLine();
 			}
