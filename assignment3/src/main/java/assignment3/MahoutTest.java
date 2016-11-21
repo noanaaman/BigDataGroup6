@@ -68,11 +68,11 @@ public class MahoutTest {
 		 * 
 		 */
 		CreateVectors create = new CreateVectors(filteredIndex); 
+		// create sequence files and split out testset
+		create.createSeqFile(sequenceFileTrain);
 		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
-		System.out.println(professionsList);
-		// create sequence files and split out testset
-		create.createSeqFile(sequenceFileTrain);	
+		System.out.println(professionsList);	
 		/*
 		*
 		*/
@@ -81,6 +81,9 @@ public class MahoutTest {
 		// removed "-el" before overwrite
 		trainNaiveBayes.run(new String[] { "--input", sequenceFileTrain, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
+		
+		// close this fs
+		fs.close();
 
 		// Report!
 		System.out.println("features: " + naiveBayesModel.numFeatures());
@@ -161,9 +164,14 @@ public class MahoutTest {
 		} finally {
 			// close the testset stream
 			stream.close();
+			fsTest.close();
 		}
 	    
 	    System.out.println(total + " : " + success + " : " + (total - success) + " " + ((double)success/total));
+	}
+	
+	public static void testNB() throws Throwable {
+		
 	}
 	
 	
