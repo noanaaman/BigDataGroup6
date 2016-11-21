@@ -13,6 +13,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
@@ -82,7 +83,8 @@ public class MahoutTest {
 		// removed "-el" before overwrite
 		File sFT = new File(sequenceFileTrain);
 		String sftPath = sFT.getAbsolutePath();
-		trainNaiveBayes.run(new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
+		//trainNaiveBayes.run(new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
+		ToolRunner.run(conf, trainNaiveBayes, new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
 		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 		
 		// close this fs
