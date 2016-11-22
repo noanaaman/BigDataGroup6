@@ -126,7 +126,7 @@ public class CreateVectors {
 			try {
 				
 				// trainset the rest, without storing it in memory
-				while (seen<400000) {	
+				while (seen<250000) {	
 					
 					//every 10th instance put in the test set
 					if (seen % 10 == 0) {
@@ -163,6 +163,7 @@ public class CreateVectors {
 				
 			} finally {	
 				// tidy up by closing the sequence file
+				System.out.println(vocab.size());
 				writerTrain.close();
 				// TODO close the testset input file
 				testFile.flush();
