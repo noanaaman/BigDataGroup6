@@ -31,10 +31,6 @@ public class MahoutTest {
 		// begin by setting up Mahout job background details
 		Configuration conf = new Configuration();
 		conf.set("mapred.job.queue.name", "hadoop06");
-		// compressing
-		//conf.set("mapred.compress.map.output", "true");
-		//conf.set("mapred.output.compression.type", "BLOCK"); 
-		//conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
 		FileSystem fs = FileSystem.get(conf);
 			
 		// set up NB
@@ -54,33 +50,20 @@ public class MahoutTest {
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 		
-		/* 
-		 * // TODO remove this comment to regenerate files
-		 * 
-		 *
+
 		// filter out features to attempt to avoid OOM errors
+		
 		FilterFeatures filter = new FilterFeatures(indexPath,filteredIndex);
 		filter.countFeatures();
 		filter.removeFeatures();
-		/
-		*
-		*/
-		/*
-		 * // TODO remove this comment to regenerate files
-		 * 
-		 */
+
+		// create the train and test files, collect the labels 
 		CreateVectors create = new CreateVectors(filteredIndex); 
-		// create sequence files and split out testset
 		create.createSeqFile(sequenceFileTrain);
-		// get labels associated with vectors
 		List<String> professionsList = create.getLabelList();
-		System.out.println(professionsList);	
-		/*
-		*
-		*/
+
 		
 		// Train the classifier
-		// removed "-el" before overwrite
 		File sFT = new File(sequenceFileTrain);
 		String sftPath = sFT.getAbsolutePath();
 		//trainNaiveBayes.run(new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
@@ -90,7 +73,7 @@ public class MahoutTest {
 		// close this fs
 		//fs.close();
 
-		// Report!
+		
 		System.out.println("features: " + naiveBayesModel.numFeatures());
 		System.out.println("labels: " + naiveBayesModel.numLabels());
 	    
@@ -100,44 +83,27 @@ public class MahoutTest {
 	    int total = 0;
 	    int success = 0;
 	    
-		// set up the filesystem, again
+		// read from the test index
 		Configuration confTest = new Configuration();
 		FileSystem fsTest = FileSystem.get(confTest);
-		// set up datastream
 		FSDataInputStream stream = fsTest.open(new Path(testIndexPath));
 		
 		try {
-			
-			// dummy CreateVectors object for line processing
-			CreateVectors create2 = new CreateVectors("");
-			
+						
 			String line = stream.readLine();
 			
 			while (line != null) {
 				
 				// generate vector
-				MahoutVector mahoutVector = create2.processVec(line);
+				MahoutVector mahoutVector = create.processVec(line);
 				
 				Vector prediction = classifier.classifyFull(mahoutVector.getVector());
-		    	
-				/*
-				 * 
-				 * 
-		    	// Professions are returned in alphanumeric sort;
-		    	// make a copy to match up with this
-		    	Vector predictionCopy = prediction.clone();	            
+		    	    	  
 	            
 	            //indexes of the top 3 
 	            //get the index of the max element, then set the max element to 0 (in the copy)
 	            //then get the the new max element's index, repeat for #3
-	            int indexofTop1 = predictionCopy.maxValueIndex();
-	            predictionCopy.set(indexofTop1, 0);
-	            int indexofTop2 = predictionCopy.maxValueIndex();
-	            predictionCopy.set(indexofTop2, 0);
-	            int indexofTop3 = predictionCopy.maxValueIndex();
-	            *
-	            *
-	            */
+
 	            int indexofTop1 = prediction.maxValueIndex();
 	            prediction.set(indexofTop1, 0);
 	            int indexofTop2 = prediction.maxValueIndex();
@@ -185,9 +151,7 @@ public class MahoutTest {
 	{
 		// runs Naive Bayes test
 		trainNB();
-		// run further classifiers
-		// trainRF();
-		// trainNN();
+
 	}
 }
 
