@@ -1,5 +1,6 @@
 package assignment3;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
@@ -29,10 +31,6 @@ public class MahoutTest {
 		// begin by setting up Mahout job background details
 		Configuration conf = new Configuration();
 		conf.set("mapred.job.queue.name", "hadoop06");
-		// compressing
-		//conf.set("mapred.compress.map.output", "true");
-		//conf.set("mapred.output.compression.type", "BLOCK"); 
-		//conf.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
 		FileSystem fs = FileSystem.get(conf);
 			
 		// set up NB
@@ -52,23 +50,30 @@ public class MahoutTest {
 		fs.delete(new Path(outputDirectory),true);
 		fs.delete(new Path(tempDirectory),true);
 		
+
+		// filter out features to attempt to avoid OOM errors
+		
 		FilterFeatures filter = new FilterFeatures(indexPath,filteredIndex);
 		filter.countFeatures();
 		filter.removeFeatures();
-		
-		CreateVectors create = new CreateVectors(filteredIndex); 
-		// get labels associated with vectors
-		List<String> professionsList = create.getLabelList();
-		System.out.println(professionsList);
-		// create sequence files and split out testset
-		create.createSeqFile(sequenceFileTrain);
-			
-		// Train the classifier
-		// removed "-el" before overwrite
-		trainNaiveBayes.run(new String[] { "--input", sequenceFileTrain, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
-		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
 
-		// Report!
+		// create the train and test files, collect the labels 
+		CreateVectors create = new CreateVectors(filteredIndex); 
+		create.createSeqFile(sequenceFileTrain);
+		List<String> professionsList = create.getLabelList();
+
+		
+		// Train the classifier
+		File sFT = new File(sequenceFileTrain);
+		String sftPath = sFT.getAbsolutePath();
+		//trainNaiveBayes.run(new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
+		ToolRunner.run(conf, trainNaiveBayes, new String[] { "--input", sftPath, "--output", outputDirectory, "--overwrite", "--tempDir", tempDirectory });
+		NaiveBayesModel naiveBayesModel = NaiveBayesModel.materialize(new Path(outputDirectory), conf);
+		
+		// close this fs
+		//fs.close();
+
+		
 		System.out.println("features: " + naiveBayesModel.numFeatures());
 		System.out.println("labels: " + naiveBayesModel.numLabels());
 	    
@@ -78,14 +83,13 @@ public class MahoutTest {
 	    int total = 0;
 	    int success = 0;
 	    
-		// set up the filesystem, again
+		// read from the test index
 		Configuration confTest = new Configuration();
 		FileSystem fsTest = FileSystem.get(confTest);
-		// set up datastream
 		FSDataInputStream stream = fsTest.open(new Path(testIndexPath));
 		
 		try {
-			
+						
 			String line = stream.readLine();
 			
 			while (line != null) {
@@ -94,25 +98,17 @@ public class MahoutTest {
 				MahoutVector mahoutVector = create.processVec(line);
 				
 				Vector prediction = classifier.classifyFull(mahoutVector.getVector());
-		    	
-		    	// Professions are returned in alphanumeric sort;
-		    	// make a copy to match up with this
-		    	Vector predictionCopy = prediction.clone();
-		    	Comparator<Double> c = new Comparator<Double>(){
-	                public int compare(Double s1,Double s2){
-	                	return s1.compareTo(s2);
-	              }};
-	            
+		    	    	  
 	            
 	            //indexes of the top 3 
 	            //get the index of the max element, then set the max element to 0 (in the copy)
 	            //then get the the new max element's index, repeat for #3
-	            int indexofTop1 = predictionCopy.maxValueIndex();
-	            predictionCopy.set(indexofTop1, 0);
-	            int indexofTop2 = predictionCopy.maxValueIndex();
-	            predictionCopy.set(indexofTop2, 0);
-	            int indexofTop3 = predictionCopy.maxValueIndex();
 
+	            int indexofTop1 = prediction.maxValueIndex();
+	            prediction.set(indexofTop1, 0);
+	            int indexofTop2 = prediction.maxValueIndex();
+	            prediction.set(indexofTop2, 0);
+	            int indexofTop3 = prediction.maxValueIndex();
 	            
 	            //get the top three predictions
 	            String prediction1 = professionsList.get(indexofTop1);
@@ -139,9 +135,14 @@ public class MahoutTest {
 		} finally {
 			// close the testset stream
 			stream.close();
+			fsTest.close();
 		}
 	    
 	    System.out.println(total + " : " + success + " : " + (total - success) + " " + ((double)success/total));
+	}
+	
+	public static void testNB() throws Throwable {
+		
 	}
 	
 	
@@ -150,9 +151,7 @@ public class MahoutTest {
 	{
 		// runs Naive Bayes test
 		trainNB();
-		// run further classifiers
-		// trainRF();
-		// trainNN();
+
 	}
 }
 

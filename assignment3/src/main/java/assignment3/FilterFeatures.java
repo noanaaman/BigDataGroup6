@@ -1,8 +1,5 @@
 package assignment3;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +16,6 @@ import util.StringIntegerList;
 import util.StringIntegerList.StringInteger;
 
 
-
 /**
  * This class runs through the index twice just to remove uncommon lemmas (features).
  * This is to avoid OOM errors and in general to avoid wasting time on features that aren't informative.
@@ -28,6 +24,7 @@ import util.StringIntegerList.StringInteger;
  * 
  *
  */
+
 public class FilterFeatures {
 	
 	private static final Map<String, Integer> freqDist = Maps.newHashMap();
@@ -39,6 +36,11 @@ public class FilterFeatures {
 		this.filteredIndex = filteredIndex;
 	}
 	
+	/**
+	 * First pass through the data set
+	 * Count the number of documents where each lemma appears.
+	 *
+	 */
 	public void countFeatures() {
 		
 		try {
@@ -60,8 +62,9 @@ public class FilterFeatures {
 					freqDist.put(si.getString(), count + 1);
 				}
 				
-				// report
 				seen++;
+				
+				//prints for following progress
 				if (seen % 5000 == 0) {
 					System.out.println(String.valueOf(seen) + " vectors read");
 				}
@@ -72,12 +75,16 @@ public class FilterFeatures {
 			stream.close();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 				
 	}
 	
+	/**
+	 * Second pass.
+	 *
+	 * Read each line and only write back the common features
+	 */
 	public void removeFeatures() {
 		
 		try {
@@ -107,10 +114,11 @@ public class FilterFeatures {
 				}
 				
 				StringIntegerList filtered = new StringIntegerList(dstSIL);				
-				file.writeUTF(profIndex[0] + "\t" + filtered.toString() + "\n");
+				file.writeChars(profIndex[0] + "\t" + filtered.toString() + "\n");
 				
-				// report
 				seen++;
+				
+				//prints for following progress
 				if (seen % 5000 == 0) {
 					System.out.println(String.valueOf(seen) + " vectors filtered");
 				}
