@@ -157,6 +157,9 @@ public class CreateVectors {
 				}
 				
 			} finally {	
+
+				// tidy up by closing the sequence file
+
 				writerTrain.close();
 				testFile.flush();
 				testFile.close();

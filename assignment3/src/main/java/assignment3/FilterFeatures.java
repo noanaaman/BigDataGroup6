@@ -108,7 +108,7 @@ public class FilterFeatures {
 				sourceSIL.readFromString(profIndex[1]);
 				
 				for (StringInteger si: sourceSIL.getIndices()) {
-					if (freqDist.get(si.getString())>50) {
+					if (freqDist.get(si.getString())>200) {
 						dstSIL.add(si);
 					}
 				}
