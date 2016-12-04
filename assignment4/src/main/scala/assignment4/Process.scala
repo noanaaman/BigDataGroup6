@@ -25,11 +25,15 @@ object Process {
     
     val reviews = data.map{r =>
       val fields = r.split("/n")
-      ((fields(0).split("/t")(1),fields(3).split("/t")(1)),fields(6).split("/t")(1))
+      (fields(0).split("/t")(1),(fields(3).split("/t")(1),fields(6).split("/t")(1)))
     }
     
+    val prodCount = reviews.countByKey()
+    
+    val filteredReviews = reviews.filter{case (key, value) => prodCount(key) >= 2.toLong}
+    
     val output = args(1)
-    reviews.saveAsTextFile(output)
+    filteredReviews.saveAsTextFile(output)
     sc.stop()
     
   }
