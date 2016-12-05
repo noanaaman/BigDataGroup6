@@ -3,13 +3,13 @@
 object matrix {
   def main(args: Array[String]): Unit = {
     val lines = sc.textFile(args(0));
-    val vals = lines.map(l =>
+    val vals = lines.map{l =>
       val fields = l.split(",")
       (fields(1), fields(0), fields(2)) //userid, prodid, rating
-    })
+    }
    
       // mapping from userid to integer id
-    val userIdToInt: RDD[(String, L)ong)] = 
+    val userIdToInt: RDD[(String, Long)] = 
      vals.map(vals(0).distinct().zipWithUniqueId())
 
      // mapping from product id to integer id
@@ -45,5 +45,5 @@ object matrix {
     // Save and load model
     model.save(sc, "target/tmp/myCollaborativeFilter")
     val sameModel = MatrixFactorizationModel.load(sc, "target/tmp/myCollaborativeFilter")
-  }
+    
 }
