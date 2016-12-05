@@ -1,8 +1,21 @@
+package assignment4
 
+
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
+import scala.collection.Map
+
+import org.apache.spark.mllib.recommendation.ALS
+import org.apache.spark.mllib.recommendation.MatrixFactorizationModel
+import org.apache.spark.mllib.recommendation.Rating
 
 object matrix {
   def main(args: Array[String]): Unit = {
-    val lines = sc.textFile(args(0));
+     val conf = new SparkConf().setAppName("matrix")
+    val sc = new SparkContext(conf)
+    val lines = sc.textFile(args(0))
     val vals = lines.map{l =>
       val fields = l.split(",")
       (fields(1), fields(0), fields(2)) //userid, prodid, rating
@@ -10,14 +23,14 @@ object matrix {
    
       // mapping from userid to integer id
     val userIdToInt: RDD[(String, Long)] = 
-     vals.map(vals(0).distinct().zipWithUniqueId())
+     vals.map(_._1).distinct().zipWithUniqueId()
 
      // mapping from product id to integer id
     val prodIdToInt: RDD[(String, Long)] =
-      vals.map(vals(1).distinct().zipWithUniqueId())
+      vals.map(_._2).distinct().zipWithUniqueId()
       
-    val rating: RDD[Rating] = vals.map { r =>
-    Rating(userIdToInt.lookup(r(0)).head.toInt, prodIdToInt.lookup(r(1)).head.toInt, r(2))
+    val ratings: RDD[Rating] = vals.map { r =>
+    Rating(userIdToInt.lookup(r._1).head.toInt, prodIdToInt.lookup(r._2).head.toInt, r._3.toDouble)
     }
     
     
@@ -29,8 +42,7 @@ object matrix {
     val usersProducts = ratings.map { case Rating(user, product, rate) =>
       (user, product)
     }  
-    val predictions =
-      model.predict(usersProducts).map { case Rating(user, product, rate) =>
+    val predictions = model.predict(usersProducts).map { case Rating(user, product, rate) =>
       ((user, product), rate)
     }
     val ratesAndPreds = ratings.map { case Rating(user, product, rate) =>
@@ -45,5 +57,5 @@ object matrix {
     // Save and load model
     model.save(sc, "target/tmp/myCollaborativeFilter")
     val sameModel = MatrixFactorizationModel.load(sc, "target/tmp/myCollaborativeFilter")
-    
+  } 
 }
